@@ -15,7 +15,7 @@
 | 机器 | `10.71.13.47` |
 | Python | 3.12（`/home/py312`）|
 | torch | 2.12.0 + torch_sdaa 3.3.0 |
-| 分支 | `main` |
+| 分支 | `adapt/sdaa` |
 
 ## 二、分析结论
 
