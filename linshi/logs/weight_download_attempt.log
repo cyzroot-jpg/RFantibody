@@ -1,0 +1,14 @@
+# Weight download attempt Thu Oct 15 08:22:33 UTC 2026
+== https://files.ipd.uw.edu/pub/RFantibody/RFdiffusion_Ab.pt
+  TIMEOUT/UNREACHABLE
+== https://files.ipd.uw.edu/pub/RFantibody/ProteinMPNN_v48_noise_0.2.pt
+  TIMEOUT/UNREACHABLE
+== https://files.ipd.uw.edu/pub/RFantibody/RF2_ab.pt
+  TIMEOUT/UNREACHABLE
+== Zenodo TCR weights
+  http=206 size=1
+== mirrors
+== https://hf-mirror.com/RosettaCommons/RFantibody/resolve/main/RF2_ab.pt
+  http=404
+== https://www.modelscope.cn/models/RFantibody
+  http=200

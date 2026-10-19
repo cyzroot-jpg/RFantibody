@@ -11,6 +11,7 @@ from rfantibody.rfdiffusion.Attention_module import (
     FeedForwardLayer,
 )
 from rfantibody.rfdiffusion.Track_module import PairStr2Pair
+from rfantibody.util.torch_compat import SafeEmbedding
 from rfantibody.rfdiffusion.util_module import (
     create_custom_forward,
     init_lecun_normal,
@@ -102,7 +103,7 @@ class PositionalEncoding2D(nn.Module):
         self.minpos = minpos
         self.maxpos = maxpos
         self.nbin = abs(minpos)+maxpos+1
-        self.emb = nn.Embedding(self.nbin, d_model)
+        self.emb = SafeEmbedding(self.nbin, d_model)
         self.drop = nn.Dropout(p_drop)
 
     def forward(self, x, idx):
@@ -120,10 +121,10 @@ class MSA_emb(nn.Module):
                  minpos=-32, maxpos=32, p_drop=0.1, input_seq_onehot=False):
         super(MSA_emb, self).__init__()
         self.emb = nn.Linear(d_init, d_msa) # embedding for general MSA
-        self.emb_q = nn.Embedding(22, d_msa) # embedding for query sequence -- used for MSA embedding
-        self.emb_left = nn.Embedding(22, d_pair) # embedding for query sequence -- used for pair embedding
-        self.emb_right = nn.Embedding(22, d_pair) # embedding for query sequence -- used for pair embedding
-        self.emb_state = nn.Embedding(22, d_state)
+        self.emb_q = SafeEmbedding(22, d_msa) # embedding for query sequence -- used for MSA embedding
+        self.emb_left = SafeEmbedding(22, d_pair) # embedding for query sequence -- used for pair embedding
+        self.emb_right = SafeEmbedding(22, d_pair) # embedding for query sequence -- used for pair embedding
+        self.emb_state = SafeEmbedding(22, d_state)
         self.drop = nn.Dropout(p_drop)
         self.pos = PositionalEncoding2D(d_pair, minpos=minpos, maxpos=maxpos, p_drop=p_drop)
         
@@ -204,7 +205,7 @@ class Extra_emb(nn.Module):
     def __init__(self, d_msa=256, d_init=22+1+2, p_drop=0.1, input_seq_onehot=False):
         super(Extra_emb, self).__init__()
         self.emb = nn.Linear(d_init, d_msa) # embedding for general MSA
-        self.emb_q = nn.Embedding(22, d_msa) # embedding for query sequence
+        self.emb_q = SafeEmbedding(22, d_msa) # embedding for query sequence
         self.drop = nn.Dropout(p_drop)
 
         self.input_seq_onehot=input_seq_onehot

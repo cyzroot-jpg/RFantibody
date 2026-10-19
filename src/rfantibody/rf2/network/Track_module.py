@@ -8,6 +8,7 @@ from rfantibody.rf2.network.Attention_module import *
 from rfantibody.rf2.network.kinematics import Qs2Rs, normQ
 from rfantibody.rf2.network.SE3_network import SE3TransformerWrapper
 from rfantibody.rf2.network.util_module import *
+from rfantibody.util.torch_compat import SafeEmbedding
 
 # Components for three-track blocks
 # 1. MSA -> MSA update (biased attention. bias from pair & structure)
@@ -22,7 +23,7 @@ class SeqSep(nn.Module):
         self.minpos = minpos
         self.maxpos = maxpos
         self.nbin = abs(minpos)+maxpos+1
-        self.emb = nn.Embedding(self.nbin, d_model)
+        self.emb = SafeEmbedding(self.nbin, d_model)
     
     def forward(self, idx, idx2=None, oligo=1, L=0, nc_cycle=False):
         if idx2 is None:

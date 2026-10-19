@@ -1,0 +1,448 @@
+# RFantibody PC evaluation  2026-10-16 09:14:25
+project root : /data01/tuyilist/cyz/RFantibody
+device       : sdaa
+weights present: {'RFdiffusion_Ab.pt': True, 'ProteinMPNN_v48_noise_0.2.pt': True, 'RF2_ab.pt': True, 'RFab_noframework-nosidechains-5-10-23_trainingparamsadded.pt': False}
+
+===== module: util =====
+[util] $ bash /data01/tuyilist/cyz/RFantibody/test/util/scripts/antibody_hlt_conversion.sh /data01/tuyilist/cyz/RFantibody/linshi/eval_outputs/util  (rc=0, 0.7s)
+Using output directory: /data01/tuyilist/cyz/RFantibody/linshi/eval_outputs/util
+Converting antibody file...
+HLT conversion completed.
+
+[util] $ bash /data01/tuyilist/cyz/RFantibody/test/util/scripts/nanobody_hlt_conversion.sh /data01/tuyilist/cyz/RFantibody/linshi/eval_outputs/util  (rc=0, 0.5s)
+Using output directory: /data01/tuyilist/cyz/RFantibody/linshi/eval_outputs/util
+Converting nanobody file...
+HLT conversion completed.
+
+
+===== module: quiver =====
+[quiver] $ /home/py312/bin/python3 -m pytest -q test/quiver/test_quiver.py  (rc=0, 32.6s)
+.......                                                                  [100%]
+7 passed in 31.66s
+
+
+===== module: rfdiffusion =====
+[rfdiffusion] $ bash /data01/tuyilist/cyz/RFantibody/test/rfdiffusion/scripts/antibody_pdbdesign.sh /data01/tuyilist/cyz/RFantibody/linshi/eval_outputs/rfdiffusion  (rc=0, 558.5s)
+:5-13'] is correct
+WARNING: config antibody.correct_selfcond is not saved in the checkpoint. Check that conf.antibody.correct_selfcond = False is correct
+USING MODEL CONFIG: self._conf[antibody][no_bugfix_t1d_mask] = False
+WARNING: config antibody.terminate_bad_targeting is not saved in the checkpoint. Check that conf.antibody.terminate_bad_targeting = None is correct
+WARNING: config antibody.hotspot_termination_threshold is not saved in the checkpoint. Check that conf.antibody.hotspot_termination_threshold = 10 is correct
+WARNING: config antibody.hotspot_termination_failures_permitted is not saved in the checkpoint. Check that conf.antibody.hotspot_termination_failures_permitted = 20 is correct
+WARNING: You are changing diffuser.T from the value this model was trained with. Are you sure you know what you are doing?
+[2026-10-16 09:15:14,979][rfantibody.rfdiffusion.inference.model_runners][INFO] - Loading checkpoint.
+ 
+----------------------------------------------------------------------------------------------------
+ 
+WARNING: The following options are not currently implemented at inference. Decide if this matters.
+Delete these in inference/model_runners.py once they are implemented/once you decide they are not required for inference -- JW
+ -predict_previous
+ -prob_self_cond
+ -seqdiff_b0
+ -seqdiff_bT
+ -seqdiff_schedule_type
+ -seqdiff
+ -freeze_track_motif
+ -use_motif_timestep
+ 
+----------------------------------------------------------------------------------------------------
+ 
+[2026-10-16 09:15:15,387][rfantibody.rfdiffusion.diffusion][INFO] - Using cached IGSO3.
+Successful diffuser __init__
+[2026-10-16 09:15:15,402][__main__][INFO] - Making design /data01/tuyilist/cyz/RFantibody/linshi/eval_outputs/rfdiffusion/ab_des_0
+With this beta schedule (linear schedule, beta_0 = 0.04, beta_T = 0.28), alpha_bar_T = 0.00013696050154976547
+Using cached chi_beta_T dictionary.
+Done calculating chi_beta_T, chi_alphas_T, and chi_abars_T dictionaries.
+Monitoring target centering
+[2026-10-16 09:16:45,461][rfantibody.rfdiffusion.inference.utils][INFO] - Sampled motif RMSD: 0.17
+[2026-10-16 09:16:45,484][rfantibody.rfdiffusion.inference.model_runners][INFO] - Timestep 50, input to next step: EVQLVESGGGLVQPGGSLRLSCAAS-------YIHWVRQAPGKGLEWVARI------TRYADSVKGRFTISADTSKNTAYLQMNSLRAEDTAVYYCSR-----------WGQGTLVTVSSDIQMTQSPSSLSASVGDRVTITC-----------WYQQKPGKAPKLLIY-------GVPSRFSGSRSGTDFTLTISSLQPEDFATYYC---------FGQGTKVEIKTNSELLSLINDMPITNDQKKLMSNNVQIVRQQSYSIMCIIKEEVLAYVVQLPLYGVIDTPCWDVSSSVITSLGAIVSCYGKTKCTASNKNRGIIKTFSNGCDYVSNKGVDTVSVGNTLYYVNKQFLGFLLGVGSAIASGVAVCKVLHLEGEVNKIKSALLSTNKAVVSLSNGVSVLTFKVLDGWYCDNAGSVSFFPQAETCKVQSNRVFCDTMNSLTLPSEVNLCNVDSAVSKGYLSALRTGWYTSVITIE
+Sequence of Hotspot Residues: LL
+Correcting constant t2d entries
+Monitoring target centering
+[2026-10-16 09:18:14,875][rfantibody.rfdiffusion.inference.utils][INFO] - Sampled motif RMSD: 0.15
+[2026-10-16 09:18:14,894][rfantibody.rfdiffusion.inference.model_runners][INFO] - Timestep 49, input to next step: EVQLVESGGGLVQPGGSLRLSCAAS-------YIHWVRQAPGKGLEWVARI------TRYADSVKGRFTISADTSKNTAYLQMNSLRAEDTAVYYCSR-----------WGQGTLVTVSSDIQMTQSPSSLSASVGDRVTITC-----------WYQQKPGKAPKLLIY-------GVPSRFSGSRSGTDFTLTISSLQPEDFATYYC---------FGQGTKVEIKTNSELLSLINDMPITNDQKKLMSNNVQIVRQQSYSIMCIIKEEVLAYVVQLPLYGVIDTPCWDVSSSVITSLGAIVSCYGKTKCTASNKNRGIIKTFSNGCDYVSNKGVDTVSVGNTLYYVNKQFLGFLLGVGSAIASGVAVCKVLHLEGEVNKIKSALLSTNKAVVSLSNGVSVLTFKVLDGWYCDNAGSVSFFPQAETCKVQSNRVFCDTMNSLTLPSEVNLCNVDSAVSKGYLSALRTGWYTSVITIE
+Sequence of Hotspot Residues: LL
+Correcting constant t2d entries
+Monitoring target centering
+Sequence of Hotspot Residues: LL
+Overall min distance hotspot to designed loop: 45.63142776489258
+Average min distance hotspot to designed loop: 45.855228424072266
+[2026-10-16 09:19:46,372][__main__][INFO] - Finished design in 4.52 minutes
+[2026-10-16 09:19:46,373][__main__][INFO] - Making design /data01/tuyilist/cyz/RFantibody/linshi/eval_outputs/rfdiffusion/ab_des_1
+With this beta schedule (linear schedule, beta_0 = 0.04, beta_T = 0.28), alpha_bar_T = 0.00013696050154976547
+Using cached chi_beta_T dictionary.
+Done calculating chi_beta_T, chi_alphas_T, and chi_abars_T dictionaries.
+Monitoring target centering
+[2026-10-16 09:21:15,702][rfantibody.rfdiffusion.inference.utils][INFO] - Sampled motif RMSD: 0.19
+[2026-10-16 09:21:15,722][rfantibody.rfdiffusion.inference.model_runners][INFO] - Timestep 50, input to next step: EVQLVESGGGLVQPGGSLRLSCAAS-------YIHWVRQAPGKGLEWVARI------TRYADSVKGRFTISADTSKNTAYLQMNSLRAEDTAVYYCSR------------WGQGTLVTVSSDIQMTQSPSSLSASVGDRVTITC---------WYQQKPGKAPKLLIY-------GVPSRFSGSRSGTDFTLTISSLQPEDFATYYC----------FGQGTKVEIKTNSELLSLINDMPITNDQKKLMSNNVQIVRQQSYSIMCIIKEEVLAYVVQLPLYGVIDTPCWDVSSSVITSLGAIVSCYGKTKCTASNKNRGIIKTFSNGCDYVSNKGVDTVSVGNTLYYVNKQFLGFLLGVGSAIASGVAVCKVLHLEGEVNKIKSALLSTNKAVVSLSNGVSVLTFKVLDGWYCDNAGSVSFFPQAETCKVQSNRVFCDTMNSLTLPSEVNLCNVDSAVSKGYLSALRTGWYTSVITIE
+Sequence of Hotspot Residues: LL
+Correcting constant t2d entries
+Monitoring target centering
+[2026-10-16 09:22:45,092][rfantibody.rfdiffusion.inference.utils][INFO] - Sampled motif RMSD: 0.15
+[2026-10-16 09:22:45,120][rfantibody.rfdiffusion.inference.model_runners][INFO] - Timestep 49, input to next step: EVQLVESGGGLVQPGGSLRLSCAAS-------YIHWVRQAPGKGLEWVARI------TRYADSVKGRFTISADTSKNTAYLQMNSLRAEDTAVYYCSR------------WGQGTLVTVSSDIQMTQSPSSLSASVGDRVTITC---------WYQQKPGKAPKLLIY-------GVPSRFSGSRSGTDFTLTISSLQPEDFATYYC----------FGQGTKVEIKTNSELLSLINDMPITNDQKKLMSNNVQIVRQQSYSIMCIIKEEVLAYVVQLPLYGVIDTPCWDVSSSVITSLGAIVSCYGKTKCTASNKNRGIIKTFSNGCDYVSNKGVDTVSVGNTLYYVNKQFLGFLLGVGSAIASGVAVCKVLHLEGEVNKIKSALLSTNKAVVSLSNGVSVLTFKVLDGWYCDNAGSVSFFPQAETCKVQSNRVFCDTMNSLTLPSEVNLCNVDSAVSKGYLSALRTGWYTSVITIE
+Sequence of Hotspot Residues: LL
+Correcting constant t2d entries
+Monitoring target centering
+Sequence of Hotspot Residues: LL
+Overall min distance hotspot to designed loop: 6.6204705238342285
+Average min distance hotspot to designed loop: 8.02534008026123
+[2026-10-16 09:24:16,284][__main__][INFO] - Finished design in 4.50 minutes
+
+STDERR: [38;5;245m,[39m[38;5;32mself[39m[38;5;245m.[39m[38;5;247mdiffusion_mask[39m[38;5;245m,[39m[38;5;36m1[39m[38;5;245m][39m[38;5;245m.[39m[38;5;247mmean[39m[38;5;245m([39m[38;5;247mdim[39m[38;5;245m=[39m[38;5;36m0[39m[38;5;245m)[39m[38;5;245m:[39m[38;5;245m [39m[38;5;247mtensor[39m[38;5;245m([39m[38;5;245m[[39m[38;5;245m-[39m[38;5;36m0.0000[39m[38;5;245m,[39m[38;5;245m  [39m[38;5;36m0.0000[39m[38;5;245m,[39m[38;5;245m [39m[38;5;245m-[39m[38;5;36m0.0000[39m[38;5;245m][39m[38;5;245m,[39m[38;5;245m [39m[38;5;247mdevice[39m[38;5;245m=[39m[38;5;36m'[39m[38;5;36msdaa:0[39m[38;5;36m'[39m[38;5;245m)[39m
+/data01/tuyilist/cyz/RFantibody/src/rfantibody/rfdiffusion/inference/utils.py:722: RuntimeWarning: overflow encountered in matmul
+  C = np.matmul(A.T, B)
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;36mf[39m[38;5;36m'[39m[38;5;36mFeaturizing with [39m[38;5;166m{[39m[38;5;247mT_scheme[39m[38;5;166m}[39m[38;5;36m'[39m[38;5;245m:[39m[38;5;245m [39m[38;5;36m'[39m[38;5;36mFeaturizing with single_T_correct_selfcond[39m[38;5;36m'[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;36m'[39m[38;5;36mProviding Ab Seq Self Cond[39m[38;5;36m'[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;36m'[39m[38;5;36mProviding Ab Str Self Cond[39m[38;5;36m'[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;247mxyz_t[39m[38;5;245m[[39m[38;5;36m0[39m[38;5;245m,[39m[38;5;36m0[39m[38;5;245m,[39m[38;5;32mself[39m[38;5;245m.[39m[38;5;247mdiffusion_mask[39m[38;5;245m,[39m[38;5;36m1[39m[38;5;245m][39m[38;5;245m.[39m[38;5;247mmean[39m[38;5;245m([39m[38;5;247mdim[39m[38;5;245m=[39m[38;5;36m0[39m[38;5;245m)[39m[38;5;245m:[39m[38;5;245m [39m[38;5;247mtensor[39m[38;5;245m([39m[38;5;245m[[39m[38;5;245m-[39m[38;5;36m0.1328[39m[38;5;245m,[39m[38;5;245m [39m[38;5;245m-[39m[38;5;36m0.0932[39m[38;5;245m,[39m[38;5;245m [39m[38;5;245m-[39m[38;5;36m0.0898[39m[38;5;245m][39m[38;5;245m,[39m[38;5;245m [39m[38;5;247mdevice[39m[38;5;245m=[39m[38;5;36m'[39m[38;5;36msdaa:0[39m[38;5;36m'[39m[38;5;245m)[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;247mxt_in[39m[38;5;245m[[39m[38;5;36m0[39m[38;5;245m,[39m[38;5;32mself[39m[38;5;245m.[39m[38;5;247mdiffusion_mask[39m[38;5;245m,[39m[38;5;36m1[39m[38;5;245m][39m[38;5;245m.[39m[38;5;247mmean[39m[38;5;245m([39m[38;5;247mdim[39m[38;5;245m=[39m[38;5;36m0[39m[38;5;245m)[39m[38;5;245m:[39m[38;5;245m [39m[38;5;247mtensor[39m[38;5;245m([39m[38;5;245m[[39m[38;5;245m-[39m[38;5;36m0.0000[39m[38;5;245m,[39m[38;5;245m  [39m[38;5;36m0.0000[39m[38;5;245m,[39m[38;5;245m [39m[38;5;245m-[39m[38;5;36m0.0000[39m[38;5;245m][39m[38;5;245m,[39m[38;5;245m [39m[38;5;247mdevice[39m[38;5;245m=[39m[38;5;36m'[39m[38;5;36msdaa:0[39m[38;5;36m'[39m[38;5;245m)[39m
+
+[rfdiffusion] $ bash /data01/tuyilist/cyz/RFantibody/test/rfdiffusion/scripts/antibody_qvdesign.sh /data01/tuyilist/cyz/RFantibody/linshi/eval_outputs/rfdiffusion  (rc=0, 557.1s)
+ed in the checkpoint. Check that conf.antibody.design_loops = ['L1:8-13', 'L2:7', 'L3:9-11', 'H1:7', 'H2:6', 'H3:5-13'] is correct
+WARNING: config antibody.correct_selfcond is not saved in the checkpoint. Check that conf.antibody.correct_selfcond = False is correct
+USING MODEL CONFIG: self._conf[antibody][no_bugfix_t1d_mask] = False
+WARNING: config antibody.terminate_bad_targeting is not saved in the checkpoint. Check that conf.antibody.terminate_bad_targeting = None is correct
+WARNING: config antibody.hotspot_termination_threshold is not saved in the checkpoint. Check that conf.antibody.hotspot_termination_threshold = 10 is correct
+WARNING: config antibody.hotspot_termination_failures_permitted is not saved in the checkpoint. Check that conf.antibody.hotspot_termination_failures_permitted = 20 is correct
+WARNING: You are changing diffuser.T from the value this model was trained with. Are you sure you know what you are doing?
+[2026-10-16 09:24:32,874][rfantibody.rfdiffusion.inference.model_runners][INFO] - Loading checkpoint.
+ 
+----------------------------------------------------------------------------------------------------
+ 
+WARNING: The following options are not currently implemented at inference. Decide if this matters.
+Delete these in inference/model_runners.py once they are implemented/once you decide they are not required for inference -- JW
+ -predict_previous
+ -prob_self_cond
+ -seqdiff_b0
+ -seqdiff_bT
+ -seqdiff_schedule_type
+ -seqdiff
+ -freeze_track_motif
+ -use_motif_timestep
+ 
+----------------------------------------------------------------------------------------------------
+ 
+[2026-10-16 09:24:33,267][rfantibody.rfdiffusion.diffusion][INFO] - Using cached IGSO3.
+Successful diffuser __init__
+[2026-10-16 09:24:33,281][__main__][INFO] - Making design samples/design_0
+With this beta schedule (linear schedule, beta_0 = 0.04, beta_T = 0.28), alpha_bar_T = 0.00013696050154976547
+Using cached chi_beta_T dictionary.
+Done calculating chi_beta_T, chi_alphas_T, and chi_abars_T dictionaries.
+Monitoring target centering
+[2026-10-16 09:26:03,109][rfantibody.rfdiffusion.inference.utils][INFO] - Sampled motif RMSD: 0.17
+[2026-10-16 09:26:03,130][rfantibody.rfdiffusion.inference.model_runners][INFO] - Timestep 50, input to next step: EVQLVESGGGLVQPGGSLRLSCAAS-------YIHWVRQAPGKGLEWVARI------TRYADSVKGRFTISADTSKNTAYLQMNSLRAEDTAVYYCSR-----------WGQGTLVTVSSDIQMTQSPSSLSASVGDRVTITC-----------WYQQKPGKAPKLLIY-------GVPSRFSGSRSGTDFTLTISSLQPEDFATYYC---------FGQGTKVEIKTNSELLSLINDMPITNDQKKLMSNNVQIVRQQSYSIMCIIKEEVLAYVVQLPLYGVIDTPCWDVSSSVITSLGAIVSCYGKTKCTASNKNRGIIKTFSNGCDYVSNKGVDTVSVGNTLYYVNKQFLGFLLGVGSAIASGVAVCKVLHLEGEVNKIKSALLSTNKAVVSLSNGVSVLTFKVLDGWYCDNAGSVSFFPQAETCKVQSNRVFCDTMNSLTLPSEVNLCNVDSAVSKGYLSALRTGWYTSVITIE
+Sequence of Hotspot Residues: LL
+Correcting constant t2d entries
+Monitoring target centering
+[2026-10-16 09:27:32,332][rfantibody.rfdiffusion.inference.utils][INFO] - Sampled motif RMSD: 0.15
+[2026-10-16 09:27:32,351][rfantibody.rfdiffusion.inference.model_runners][INFO] - Timestep 49, input to next step: EVQLVESGGGLVQPGGSLRLSCAAS-------YIHWVRQAPGKGLEWVARI------TRYADSVKGRFTISADTSKNTAYLQMNSLRAEDTAVYYCSR-----------WGQGTLVTVSSDIQMTQSPSSLSASVGDRVTITC-----------WYQQKPGKAPKLLIY-------GVPSRFSGSRSGTDFTLTISSLQPEDFATYYC---------FGQGTKVEIKTNSELLSLINDMPITNDQKKLMSNNVQIVRQQSYSIMCIIKEEVLAYVVQLPLYGVIDTPCWDVSSSVITSLGAIVSCYGKTKCTASNKNRGIIKTFSNGCDYVSNKGVDTVSVGNTLYYVNKQFLGFLLGVGSAIASGVAVCKVLHLEGEVNKIKSALLSTNKAVVSLSNGVSVLTFKVLDGWYCDNAGSVSFFPQAETCKVQSNRVFCDTMNSLTLPSEVNLCNVDSAVSKGYLSALRTGWYTSVITIE
+Sequence of Hotspot Residues: LL
+Correcting constant t2d entries
+Monitoring target centering
+Sequence of Hotspot Residues: LL
+Overall min distance hotspot to designed loop: 45.63142776489258
+Average min distance hotspot to designed loop: 45.855228424072266
+[2026-10-16 09:29:03,792][__main__][INFO] - Finished design in 4.51 minutes
+[2026-10-16 09:29:03,793][__main__][INFO] - Making design samples/design_1
+With this beta schedule (linear schedule, beta_0 = 0.04, beta_T = 0.28), alpha_bar_T = 0.00013696050154976547
+Using cached chi_beta_T dictionary.
+Done calculating chi_beta_T, chi_alphas_T, and chi_abars_T dictionaries.
+Monitoring target centering
+[2026-10-16 09:30:32,909][rfantibody.rfdiffusion.inference.utils][INFO] - Sampled motif RMSD: 0.19
+[2026-10-16 09:30:32,927][rfantibody.rfdiffusion.inference.model_runners][INFO] - Timestep 50, input to next step: EVQLVESGGGLVQPGGSLRLSCAAS-------YIHWVRQAPGKGLEWVARI------TRYADSVKGRFTISADTSKNTAYLQMNSLRAEDTAVYYCSR------------WGQGTLVTVSSDIQMTQSPSSLSASVGDRVTITC---------WYQQKPGKAPKLLIY-------GVPSRFSGSRSGTDFTLTISSLQPEDFATYYC----------FGQGTKVEIKTNSELLSLINDMPITNDQKKLMSNNVQIVRQQSYSIMCIIKEEVLAYVVQLPLYGVIDTPCWDVSSSVITSLGAIVSCYGKTKCTASNKNRGIIKTFSNGCDYVSNKGVDTVSVGNTLYYVNKQFLGFLLGVGSAIASGVAVCKVLHLEGEVNKIKSALLSTNKAVVSLSNGVSVLTFKVLDGWYCDNAGSVSFFPQAETCKVQSNRVFCDTMNSLTLPSEVNLCNVDSAVSKGYLSALRTGWYTSVITIE
+Sequence of Hotspot Residues: LL
+Correcting constant t2d entries
+Monitoring target centering
+[2026-10-16 09:32:02,213][rfantibody.rfdiffusion.inference.utils][INFO] - Sampled motif RMSD: 0.15
+[2026-10-16 09:32:02,233][rfantibody.rfdiffusion.inference.model_runners][INFO] - Timestep 49, input to next step: EVQLVESGGGLVQPGGSLRLSCAAS-------YIHWVRQAPGKGLEWVARI------TRYADSVKGRFTISADTSKNTAYLQMNSLRAEDTAVYYCSR------------WGQGTLVTVSSDIQMTQSPSSLSASVGDRVTITC---------WYQQKPGKAPKLLIY-------GVPSRFSGSRSGTDFTLTISSLQPEDFATYYC----------FGQGTKVEIKTNSELLSLINDMPITNDQKKLMSNNVQIVRQQSYSIMCIIKEEVLAYVVQLPLYGVIDTPCWDVSSSVITSLGAIVSCYGKTKCTASNKNRGIIKTFSNGCDYVSNKGVDTVSVGNTLYYVNKQFLGFLLGVGSAIASGVAVCKVLHLEGEVNKIKSALLSTNKAVVSLSNGVSVLTFKVLDGWYCDNAGSVSFFPQAETCKVQSNRVFCDTMNSLTLPSEVNLCNVDSAVSKGYLSALRTGWYTSVITIE
+Sequence of Hotspot Residues: LL
+Correcting constant t2d entries
+Monitoring target centering
+Sequence of Hotspot Residues: LL
+Overall min distance hotspot to designed loop: 6.6204705238342285
+Average min distance hotspot to designed loop: 8.02534008026123
+[2026-10-16 09:33:33,389][__main__][INFO] - Finished design in 4.49 minutes
+
+STDERR: 36msdaa:0[39m[38;5;36m'[39m[38;5;245m)[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;247mxt_in[39m[38;5;245m[[39m[38;5;36m0[39m[38;5;245m,[39m[38;5;32mself[39m[38;5;245m.[39m[38;5;247mdiffusion_mask[39m[38;5;245m,[39m[38;5;36m1[39m[38;5;245m][39m[38;5;245m.[39m[38;5;247mmean[39m[38;5;245m([39m[38;5;247mdim[39m[38;5;245m=[39m[38;5;36m0[39m[38;5;245m)[39m[38;5;245m:[39m[38;5;245m [39m[38;5;247mtensor[39m[38;5;245m([39m[38;5;245m[[39m[38;5;245m-[39m[38;5;36m0.0000[39m[38;5;245m,[39m[38;5;245m  [39m[38;5;36m0.0000[39m[38;5;245m,[39m[38;5;245m [39m[38;5;245m-[39m[38;5;36m0.0000[39m[38;5;245m][39m[38;5;245m,[39m[38;5;245m [39m[38;5;247mdevice[39m[38;5;245m=[39m[38;5;36m'[39m[38;5;36msdaa:0[39m[38;5;36m'[39m[38;5;245m)[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;36mf[39m[38;5;36m'[39m[38;5;36mFeaturizing with [39m[38;5;166m{[39m[38;5;247mT_scheme[39m[38;5;166m}[39m[38;5;36m'[39m[38;5;245m:[39m[38;5;245m [39m[38;5;36m'[39m[38;5;36mFeaturizing with single_T_correct_selfcond[39m[38;5;36m'[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;36m'[39m[38;5;36mProviding Ab Seq Self Cond[39m[38;5;36m'[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;36m'[39m[38;5;36mProviding Ab Str Self Cond[39m[38;5;36m'[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;247mxyz_t[39m[38;5;245m[[39m[38;5;36m0[39m[38;5;245m,[39m[38;5;36m0[39m[38;5;245m,[39m[38;5;32mself[39m[38;5;245m.[39m[38;5;247mdiffusion_mask[39m[38;5;245m,[39m[38;5;36m1[39m[38;5;245m][39m[38;5;245m.[39m[38;5;247mmean[39m[38;5;245m([39m[38;5;247mdim[39m[38;5;245m=[39m[38;5;36m0[39m[38;5;245m)[39m[38;5;245m:[39m[38;5;245m [39m[38;5;247mtensor[39m[38;5;245m([39m[38;5;245m[[39m[38;5;245m-[39m[38;5;36m0.1328[39m[38;5;245m,[39m[38;5;245m [39m[38;5;245m-[39m[38;5;36m0.0932[39m[38;5;245m,[39m[38;5;245m [39m[38;5;245m-[39m[38;5;36m0.0898[39m[38;5;245m][39m[38;5;245m,[39m[38;5;245m [39m[38;5;247mdevice[39m[38;5;245m=[39m[38;5;36m'[39m[38;5;36msdaa:0[39m[38;5;36m'[39m[38;5;245m)[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;247mxt_in[39m[38;5;245m[[39m[38;5;36m0[39m[38;5;245m,[39m[38;5;32mself[39m[38;5;245m.[39m[38;5;247mdiffusion_mask[39m[38;5;245m,[39m[38;5;36m1[39m[38;5;245m][39m[38;5;245m.[39m[38;5;247mmean[39m[38;5;245m([39m[38;5;247mdim[39m[38;5;245m=[39m[38;5;36m0[39m[38;5;245m)[39m[38;5;245m:[39m[38;5;245m [39m[38;5;247mtensor[39m[38;5;245m([39m[38;5;245m[[39m[38;5;245m-[39m[38;5;36m0.0000[39m[38;5;245m,[39m[38;5;245m  [39m[38;5;36m0.0000[39m[38;5;245m,[39m[38;5;245m [39m[38;5;245m-[39m[38;5;36m0.0000[39m[38;5;245m][39m[38;5;245m,[39m[38;5;245m [39m[38;5;247mdevice[39m[38;5;245m=[39m[38;5;36m'[39m[38;5;36msdaa:0[39m[38;5;36m'[39m[38;5;245m)[39m
+
+[rfdiffusion] $ bash /data01/tuyilist/cyz/RFantibody/test/rfdiffusion/scripts/nanobody_pdbdesign.sh /data01/tuyilist/cyz/RFantibody/linshi/eval_outputs/rfdiffusion  (rc=0, 295.6s)
+orrect
+WARNING: config antibody.framework_pdb is not saved in the checkpoint. Check that conf.antibody.framework_pdb = /data01/tuyilist/cyz/RFantibody/test/rfdiffusion/inputs_for_test/h-NbBCII10.pdb is correct
+USING MODEL CONFIG: self._conf[antibody][T_scheme] = single_T_correct_selfcond
+WARNING: config antibody.design_loops is not saved in the checkpoint. Check that conf.antibody.design_loops = ['L1:8-13', 'L2:7', 'L3:9-11', 'H1:7', 'H2:6', 'H3:5-13'] is correct
+WARNING: config antibody.correct_selfcond is not saved in the checkpoint. Check that conf.antibody.correct_selfcond = False is correct
+USING MODEL CONFIG: self._conf[antibody][no_bugfix_t1d_mask] = False
+WARNING: config antibody.terminate_bad_targeting is not saved in the checkpoint. Check that conf.antibody.terminate_bad_targeting = None is correct
+WARNING: config antibody.hotspot_termination_threshold is not saved in the checkpoint. Check that conf.antibody.hotspot_termination_threshold = 10 is correct
+WARNING: config antibody.hotspot_termination_failures_permitted is not saved in the checkpoint. Check that conf.antibody.hotspot_termination_failures_permitted = 20 is correct
+WARNING: You are changing diffuser.T from the value this model was trained with. Are you sure you know what you are doing?
+[2026-10-16 09:33:49,790][rfantibody.rfdiffusion.inference.model_runners][INFO] - Loading checkpoint.
+ 
+----------------------------------------------------------------------------------------------------
+ 
+WARNING: The following options are not currently implemented at inference. Decide if this matters.
+Delete these in inference/model_runners.py once they are implemented/once you decide they are not required for inference -- JW
+ -predict_previous
+ -prob_self_cond
+ -seqdiff_b0
+ -seqdiff_bT
+ -seqdiff_schedule_type
+ -seqdiff
+ -freeze_track_motif
+ -use_motif_timestep
+ 
+----------------------------------------------------------------------------------------------------
+ 
+[2026-10-16 09:33:50,201][rfantibody.rfdiffusion.diffusion][INFO] - Using cached IGSO3.
+Successful diffuser __init__
+[2026-10-16 09:33:50,217][__main__][INFO] - Making design /data01/tuyilist/cyz/RFantibody/linshi/eval_outputs/rfdiffusion/nb_des_0
+With this beta schedule (linear schedule, beta_0 = 0.04, beta_T = 0.28), alpha_bar_T = 0.00013696050154976547
+Using cached chi_beta_T dictionary.
+Done calculating chi_beta_T, chi_alphas_T, and chi_abars_T dictionaries.
+Monitoring target centering
+[2026-10-16 09:34:40,243][rfantibody.rfdiffusion.inference.utils][INFO] - Sampled motif RMSD: 0.14
+[2026-10-16 09:34:40,262][rfantibody.rfdiffusion.inference.model_runners][INFO] - Timestep 50, input to next step: QVQLVESGGGLVQPGGSLRLSCAAS-------SLGWFRQAPGQGLEAVAAI------TYYADSVKGRFTISRDNSKNTLYLQMNSLRAEDTAVYYCAA-----WGQGTLVTVSTNSELLSLINDMPITNDQKKLMSNNVQIVRQQSYSIMCIIKEEVLAYVVQLPLYGVIDTPCWDVSSSVITSLGAIVSCYGKTKCTASNKNRGIIKTFSNGCDYVSNKGVDTVSVGNTLYYVNKQFLGFLLGVGSAIASGVAVCKVLHLEGEVNKIKSALLSTNKAVVSLSNGVSVLTFKVLDGWYCDNAGSVSFFPQAETCKVQSNRVFCDTMNSLTLPSEVNLCNVDSAVSKGYLSALRTGWYTSVITIE
+Sequence of Hotspot Residues: LL
+Correcting constant t2d entries
+Monitoring target centering
+[2026-10-16 09:35:30,309][rfantibody.rfdiffusion.inference.utils][INFO] - Sampled motif RMSD: 0.14
+[2026-10-16 09:35:30,326][rfantibody.rfdiffusion.inference.model_runners][INFO] - Timestep 49, input to next step: QVQLVESGGGLVQPGGSLRLSCAAS-------SLGWFRQAPGQGLEAVAAI------TYYADSVKGRFTISRDNSKNTLYLQMNSLRAEDTAVYYCAA-----WGQGTLVTVSTNSELLSLINDMPITNDQKKLMSNNVQIVRQQSYSIMCIIKEEVLAYVVQLPLYGVIDTPCWDVSSSVITSLGAIVSCYGKTKCTASNKNRGIIKTFSNGCDYVSNKGVDTVSVGNTLYYVNKQFLGFLLGVGSAIASGVAVCKVLHLEGEVNKIKSALLSTNKAVVSLSNGVSVLTFKVLDGWYCDNAGSVSFFPQAETCKVQSNRVFCDTMNSLTLPSEVNLCNVDSAVSKGYLSALRTGWYTSVITIE
+Sequence of Hotspot Residues: LL
+Correcting constant t2d entries
+Monitoring target centering
+Sequence of Hotspot Residues: LL
+Overall min distance hotspot to designed loop: 7.1638102531433105
+Average min distance hotspot to designed loop: 7.265182018280029
+[2026-10-16 09:36:21,561][__main__][INFO] - Finished design in 2.52 minutes
+[2026-10-16 09:36:21,562][__main__][INFO] - Making design /data01/tuyilist/cyz/RFantibody/linshi/eval_outputs/rfdiffusion/nb_des_1
+With this beta schedule (linear schedule, beta_0 = 0.04, beta_T = 0.28), alpha_bar_T = 0.00013696050154976547
+Using cached chi_beta_T dictionary.
+Done calculating chi_beta_T, chi_alphas_T, and chi_abars_T dictionaries.
+Monitoring target centering
+[2026-10-16 09:37:03,290][rfantibody.rfdiffusion.inference.utils][INFO] - Sampled motif RMSD: 0.14
+[2026-10-16 09:37:03,307][rfantibody.rfdiffusion.inference.model_runners][INFO] - Timestep 50, input to next step: QVQLVESGGGLVQPGGSLRLSCAAS-------SLGWFRQAPGQGLEAVAAI------TYYADSVKGRFTISRDNSKNTLYLQMNSLRAEDTAVYYCAA---------WGQGTLVTVSTNSELLSLINDMPITNDQKKLMSNNVQIVRQQSYSIMCIIKEEVLAYVVQLPLYGVIDTPCWDVSSSVITSLGAIVSCYGKTKCTASNKNRGIIKTFSNGCDYVSNKGVDTVSVGNTLYYVNKQFLGFLLGVGSAIASGVAVCKVLHLEGEVNKIKSALLSTNKAVVSLSNGVSVLTFKVLDGWYCDNAGSVSFFPQAETCKVQSNRVFCDTMNSLTLPSEVNLCNVDSAVSKGYLSALRTGWYTSVITIE
+Sequence of Hotspot Residues: LL
+Correcting constant t2d entries
+Monitoring target centering
+[2026-10-16 09:37:45,369][rfantibody.rfdiffusion.inference.utils][INFO] - Sampled motif RMSD: 0.15
+[2026-10-16 09:37:45,386][rfantibody.rfdiffusion.inference.model_runners][INFO] - Timestep 49, input to next step: QVQLVESGGGLVQPGGSLRLSCAAS-------SLGWFRQAPGQGLEAVAAI------TYYADSVKGRFTISRDNSKNTLYLQMNSLRAEDTAVYYCAA---------WGQGTLVTVSTNSELLSLINDMPITNDQKKLMSNNVQIVRQQSYSIMCIIKEEVLAYVVQLPLYGVIDTPCWDVSSSVITSLGAIVSCYGKTKCTASNKNRGIIKTFSNGCDYVSNKGVDTVSVGNTLYYVNKQFLGFLLGVGSAIASGVAVCKVLHLEGEVNKIKSALLSTNKAVVSLSNGVSVLTFKVLDGWYCDNAGSVSFFPQAETCKVQSNRVFCDTMNSLTLPSEVNLCNVDSAVSKGYLSALRTGWYTSVITIE
+Sequence of Hotspot Residues: LL
+Correcting constant t2d entries
+Monitoring target centering
+Sequence of Hotspot Residues: LL
+Overall min distance hotspot to designed loop: 6.17857551574707
+Average min distance hotspot to designed loop: 6.463010787963867
+[2026-10-16 09:38:28,666][__main__][INFO] - Finished design in 2.12 minutes
+
+STDERR: [38;5;245m,[39m[38;5;32mself[39m[38;5;245m.[39m[38;5;247mdiffusion_mask[39m[38;5;245m,[39m[38;5;36m1[39m[38;5;245m][39m[38;5;245m.[39m[38;5;247mmean[39m[38;5;245m([39m[38;5;247mdim[39m[38;5;245m=[39m[38;5;36m0[39m[38;5;245m)[39m[38;5;245m:[39m[38;5;245m [39m[38;5;247mtensor[39m[38;5;245m([39m[38;5;245m[[39m[38;5;245m-[39m[38;5;36m0.0000[39m[38;5;245m,[39m[38;5;245m  [39m[38;5;36m0.0000[39m[38;5;245m,[39m[38;5;245m [39m[38;5;245m-[39m[38;5;36m0.0000[39m[38;5;245m][39m[38;5;245m,[39m[38;5;245m [39m[38;5;247mdevice[39m[38;5;245m=[39m[38;5;36m'[39m[38;5;36msdaa:0[39m[38;5;36m'[39m[38;5;245m)[39m
+/data01/tuyilist/cyz/RFantibody/src/rfantibody/rfdiffusion/inference/utils.py:722: RuntimeWarning: overflow encountered in matmul
+  C = np.matmul(A.T, B)
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;36mf[39m[38;5;36m'[39m[38;5;36mFeaturizing with [39m[38;5;166m{[39m[38;5;247mT_scheme[39m[38;5;166m}[39m[38;5;36m'[39m[38;5;245m:[39m[38;5;245m [39m[38;5;36m'[39m[38;5;36mFeaturizing with single_T_correct_selfcond[39m[38;5;36m'[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;36m'[39m[38;5;36mProviding Ab Seq Self Cond[39m[38;5;36m'[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;36m'[39m[38;5;36mProviding Ab Str Self Cond[39m[38;5;36m'[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;247mxyz_t[39m[38;5;245m[[39m[38;5;36m0[39m[38;5;245m,[39m[38;5;36m0[39m[38;5;245m,[39m[38;5;32mself[39m[38;5;245m.[39m[38;5;247mdiffusion_mask[39m[38;5;245m,[39m[38;5;36m1[39m[38;5;245m][39m[38;5;245m.[39m[38;5;247mmean[39m[38;5;245m([39m[38;5;247mdim[39m[38;5;245m=[39m[38;5;36m0[39m[38;5;245m)[39m[38;5;245m:[39m[38;5;245m [39m[38;5;247mtensor[39m[38;5;245m([39m[38;5;245m[[39m[38;5;245m-[39m[38;5;36m0.1486[39m[38;5;245m,[39m[38;5;245m [39m[38;5;245m-[39m[38;5;36m0.2270[39m[38;5;245m,[39m[38;5;245m [39m[38;5;245m-[39m[38;5;36m0.1294[39m[38;5;245m][39m[38;5;245m,[39m[38;5;245m [39m[38;5;247mdevice[39m[38;5;245m=[39m[38;5;36m'[39m[38;5;36msdaa:0[39m[38;5;36m'[39m[38;5;245m)[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;247mxt_in[39m[38;5;245m[[39m[38;5;36m0[39m[38;5;245m,[39m[38;5;32mself[39m[38;5;245m.[39m[38;5;247mdiffusion_mask[39m[38;5;245m,[39m[38;5;36m1[39m[38;5;245m][39m[38;5;245m.[39m[38;5;247mmean[39m[38;5;245m([39m[38;5;247mdim[39m[38;5;245m=[39m[38;5;36m0[39m[38;5;245m)[39m[38;5;245m:[39m[38;5;245m [39m[38;5;247mtensor[39m[38;5;245m([39m[38;5;245m[[39m[38;5;245m-[39m[38;5;36m0.0000[39m[38;5;245m,[39m[38;5;245m  [39m[38;5;36m0.0000[39m[38;5;245m,[39m[38;5;245m [39m[38;5;245m-[39m[38;5;36m0.0000[39m[38;5;245m][39m[38;5;245m,[39m[38;5;245m [39m[38;5;247mdevice[39m[38;5;245m=[39m[38;5;36m'[39m[38;5;36msdaa:0[39m[38;5;36m'[39m[38;5;245m)[39m
+/home/py312/lib/python3.12/site-packages/biotite/structure/io/pdb/file.py:148: UserWarning: 1912 elements were guessed from atom name
+  warnings.warn(
+/home/py312/lib/python3.12/site-packages/biotite/structure/io/pdb/file.py:148: UserWarning: 1456 elements were guessed from atom name
+  warnings.warn(
+/home/py312/lib/python3.12/site-packages/biotite/structure/io/pdb/file.py:148: UserWarning: 1472 elements were guessed from atom name
+  warnings.warn(
+/home/py312/lib/python3.12/site-packages/biotite/structure/io/pdb/file.py:148: UserWarning: 1912 elements were guessed from atom name
+  warnings.warn(
+/home/py312/lib/python3.12/site-packages/biotite/structure/io/pdb/file.py:148: UserWarning: 7186 elements were guessed from atom name
+  warnings.warn(
+
+[rfdiffusion] $ bash /data01/tuyilist/cyz/RFantibody/test/rfdiffusion/scripts/nanobody_qvdesign.sh /data01/tuyilist/cyz/RFantibody/linshi/eval_outputs/rfdiffusion  (rc=0, 296.8s)
+t conf.antibody.target_pdb = /data01/tuyilist/cyz/RFantibody/test/rfdiffusion/inputs_for_test/rsv_site3.pdb is correct
+WARNING: config antibody.framework_pdb is not saved in the checkpoint. Check that conf.antibody.framework_pdb = /data01/tuyilist/cyz/RFantibody/test/rfdiffusion/inputs_for_test/h-NbBCII10.pdb is correct
+USING MODEL CONFIG: self._conf[antibody][T_scheme] = single_T_correct_selfcond
+WARNING: config antibody.design_loops is not saved in the checkpoint. Check that conf.antibody.design_loops = ['L1:8-13', 'L2:7', 'L3:9-11', 'H1:7', 'H2:6', 'H3:5-13'] is correct
+WARNING: config antibody.correct_selfcond is not saved in the checkpoint. Check that conf.antibody.correct_selfcond = False is correct
+USING MODEL CONFIG: self._conf[antibody][no_bugfix_t1d_mask] = False
+WARNING: config antibody.terminate_bad_targeting is not saved in the checkpoint. Check that conf.antibody.terminate_bad_targeting = None is correct
+WARNING: config antibody.hotspot_termination_threshold is not saved in the checkpoint. Check that conf.antibody.hotspot_termination_threshold = 10 is correct
+WARNING: config antibody.hotspot_termination_failures_permitted is not saved in the checkpoint. Check that conf.antibody.hotspot_termination_failures_permitted = 20 is correct
+WARNING: You are changing diffuser.T from the value this model was trained with. Are you sure you know what you are doing?
+[2026-10-16 09:38:46,155][rfantibody.rfdiffusion.inference.model_runners][INFO] - Loading checkpoint.
+ 
+----------------------------------------------------------------------------------------------------
+ 
+WARNING: The following options are not currently implemented at inference. Decide if this matters.
+Delete these in inference/model_runners.py once they are implemented/once you decide they are not required for inference -- JW
+ -predict_previous
+ -prob_self_cond
+ -seqdiff_b0
+ -seqdiff_bT
+ -seqdiff_schedule_type
+ -seqdiff
+ -freeze_track_motif
+ -use_motif_timestep
+ 
+----------------------------------------------------------------------------------------------------
+ 
+[2026-10-16 09:38:46,565][rfantibody.rfdiffusion.diffusion][INFO] - Using cached IGSO3.
+Successful diffuser __init__
+[2026-10-16 09:38:46,581][__main__][INFO] - Making design samples/design_0
+With this beta schedule (linear schedule, beta_0 = 0.04, beta_T = 0.28), alpha_bar_T = 0.00013696050154976547
+Using cached chi_beta_T dictionary.
+Done calculating chi_beta_T, chi_alphas_T, and chi_abars_T dictionaries.
+Monitoring target centering
+[2026-10-16 09:39:36,770][rfantibody.rfdiffusion.inference.utils][INFO] - Sampled motif RMSD: 0.14
+[2026-10-16 09:39:36,789][rfantibody.rfdiffusion.inference.model_runners][INFO] - Timestep 50, input to next step: QVQLVESGGGLVQPGGSLRLSCAAS-------SLGWFRQAPGQGLEAVAAI------TYYADSVKGRFTISRDNSKNTLYLQMNSLRAEDTAVYYCAA-----WGQGTLVTVSTNSELLSLINDMPITNDQKKLMSNNVQIVRQQSYSIMCIIKEEVLAYVVQLPLYGVIDTPCWDVSSSVITSLGAIVSCYGKTKCTASNKNRGIIKTFSNGCDYVSNKGVDTVSVGNTLYYVNKQFLGFLLGVGSAIASGVAVCKVLHLEGEVNKIKSALLSTNKAVVSLSNGVSVLTFKVLDGWYCDNAGSVSFFPQAETCKVQSNRVFCDTMNSLTLPSEVNLCNVDSAVSKGYLSALRTGWYTSVITIE
+Sequence of Hotspot Residues: LL
+Correcting constant t2d entries
+Monitoring target centering
+[2026-10-16 09:40:26,886][rfantibody.rfdiffusion.inference.utils][INFO] - Sampled motif RMSD: 0.14
+[2026-10-16 09:40:26,903][rfantibody.rfdiffusion.inference.model_runners][INFO] - Timestep 49, input to next step: QVQLVESGGGLVQPGGSLRLSCAAS-------SLGWFRQAPGQGLEAVAAI------TYYADSVKGRFTISRDNSKNTLYLQMNSLRAEDTAVYYCAA-----WGQGTLVTVSTNSELLSLINDMPITNDQKKLMSNNVQIVRQQSYSIMCIIKEEVLAYVVQLPLYGVIDTPCWDVSSSVITSLGAIVSCYGKTKCTASNKNRGIIKTFSNGCDYVSNKGVDTVSVGNTLYYVNKQFLGFLLGVGSAIASGVAVCKVLHLEGEVNKIKSALLSTNKAVVSLSNGVSVLTFKVLDGWYCDNAGSVSFFPQAETCKVQSNRVFCDTMNSLTLPSEVNLCNVDSAVSKGYLSALRTGWYTSVITIE
+Sequence of Hotspot Residues: LL
+Correcting constant t2d entries
+Monitoring target centering
+Sequence of Hotspot Residues: LL
+Overall min distance hotspot to designed loop: 7.1638102531433105
+Average min distance hotspot to designed loop: 7.265182018280029
+[2026-10-16 09:41:18,244][__main__][INFO] - Finished design in 2.53 minutes
+[2026-10-16 09:41:18,245][__main__][INFO] - Making design samples/design_1
+With this beta schedule (linear schedule, beta_0 = 0.04, beta_T = 0.28), alpha_bar_T = 0.00013696050154976547
+Using cached chi_beta_T dictionary.
+Done calculating chi_beta_T, chi_alphas_T, and chi_abars_T dictionaries.
+Monitoring target centering
+[2026-10-16 09:41:59,974][rfantibody.rfdiffusion.inference.utils][INFO] - Sampled motif RMSD: 0.14
+[2026-10-16 09:41:59,992][rfantibody.rfdiffusion.inference.model_runners][INFO] - Timestep 50, input to next step: QVQLVESGGGLVQPGGSLRLSCAAS-------SLGWFRQAPGQGLEAVAAI------TYYADSVKGRFTISRDNSKNTLYLQMNSLRAEDTAVYYCAA---------WGQGTLVTVSTNSELLSLINDMPITNDQKKLMSNNVQIVRQQSYSIMCIIKEEVLAYVVQLPLYGVIDTPCWDVSSSVITSLGAIVSCYGKTKCTASNKNRGIIKTFSNGCDYVSNKGVDTVSVGNTLYYVNKQFLGFLLGVGSAIASGVAVCKVLHLEGEVNKIKSALLSTNKAVVSLSNGVSVLTFKVLDGWYCDNAGSVSFFPQAETCKVQSNRVFCDTMNSLTLPSEVNLCNVDSAVSKGYLSALRTGWYTSVITIE
+Sequence of Hotspot Residues: LL
+Correcting constant t2d entries
+Monitoring target centering
+[2026-10-16 09:42:41,744][rfantibody.rfdiffusion.inference.utils][INFO] - Sampled motif RMSD: 0.15
+[2026-10-16 09:42:41,764][rfantibody.rfdiffusion.inference.model_runners][INFO] - Timestep 49, input to next step: QVQLVESGGGLVQPGGSLRLSCAAS-------SLGWFRQAPGQGLEAVAAI------TYYADSVKGRFTISRDNSKNTLYLQMNSLRAEDTAVYYCAA---------WGQGTLVTVSTNSELLSLINDMPITNDQKKLMSNNVQIVRQQSYSIMCIIKEEVLAYVVQLPLYGVIDTPCWDVSSSVITSLGAIVSCYGKTKCTASNKNRGIIKTFSNGCDYVSNKGVDTVSVGNTLYYVNKQFLGFLLGVGSAIASGVAVCKVLHLEGEVNKIKSALLSTNKAVVSLSNGVSVLTFKVLDGWYCDNAGSVSFFPQAETCKVQSNRVFCDTMNSLTLPSEVNLCNVDSAVSKGYLSALRTGWYTSVITIE
+Sequence of Hotspot Residues: LL
+Correcting constant t2d entries
+Monitoring target centering
+Sequence of Hotspot Residues: LL
+Overall min distance hotspot to designed loop: 6.17857551574707
+Average min distance hotspot to designed loop: 6.463010787963867
+[2026-10-16 09:43:24,738][__main__][INFO] - Finished design in 2.11 minutes
+
+STDERR: 36msdaa:0[39m[38;5;36m'[39m[38;5;245m)[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;247mxt_in[39m[38;5;245m[[39m[38;5;36m0[39m[38;5;245m,[39m[38;5;32mself[39m[38;5;245m.[39m[38;5;247mdiffusion_mask[39m[38;5;245m,[39m[38;5;36m1[39m[38;5;245m][39m[38;5;245m.[39m[38;5;247mmean[39m[38;5;245m([39m[38;5;247mdim[39m[38;5;245m=[39m[38;5;36m0[39m[38;5;245m)[39m[38;5;245m:[39m[38;5;245m [39m[38;5;247mtensor[39m[38;5;245m([39m[38;5;245m[[39m[38;5;245m-[39m[38;5;36m0.0000[39m[38;5;245m,[39m[38;5;245m  [39m[38;5;36m0.0000[39m[38;5;245m,[39m[38;5;245m [39m[38;5;245m-[39m[38;5;36m0.0000[39m[38;5;245m][39m[38;5;245m,[39m[38;5;245m [39m[38;5;247mdevice[39m[38;5;245m=[39m[38;5;36m'[39m[38;5;36msdaa:0[39m[38;5;36m'[39m[38;5;245m)[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;36mf[39m[38;5;36m'[39m[38;5;36mFeaturizing with [39m[38;5;166m{[39m[38;5;247mT_scheme[39m[38;5;166m}[39m[38;5;36m'[39m[38;5;245m:[39m[38;5;245m [39m[38;5;36m'[39m[38;5;36mFeaturizing with single_T_correct_selfcond[39m[38;5;36m'[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;36m'[39m[38;5;36mProviding Ab Seq Self Cond[39m[38;5;36m'[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;36m'[39m[38;5;36mProviding Ab Str Self Cond[39m[38;5;36m'[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;247mxyz_t[39m[38;5;245m[[39m[38;5;36m0[39m[38;5;245m,[39m[38;5;36m0[39m[38;5;245m,[39m[38;5;32mself[39m[38;5;245m.[39m[38;5;247mdiffusion_mask[39m[38;5;245m,[39m[38;5;36m1[39m[38;5;245m][39m[38;5;245m.[39m[38;5;247mmean[39m[38;5;245m([39m[38;5;247mdim[39m[38;5;245m=[39m[38;5;36m0[39m[38;5;245m)[39m[38;5;245m:[39m[38;5;245m [39m[38;5;247mtensor[39m[38;5;245m([39m[38;5;245m[[39m[38;5;245m-[39m[38;5;36m0.1486[39m[38;5;245m,[39m[38;5;245m [39m[38;5;245m-[39m[38;5;36m0.2270[39m[38;5;245m,[39m[38;5;245m [39m[38;5;245m-[39m[38;5;36m0.1294[39m[38;5;245m][39m[38;5;245m,[39m[38;5;245m [39m[38;5;247mdevice[39m[38;5;245m=[39m[38;5;36m'[39m[38;5;36msdaa:0[39m[38;5;36m'[39m[38;5;245m)[39m
+[38;5;247mic[39m[38;5;245m|[39m[38;5;245m [39m[38;5;247mxt_in[39m[38;5;245m[[39m[38;5;36m0[39m[38;5;245m,[39m[38;5;32mself[39m[38;5;245m.[39m[38;5;247mdiffusion_mask[39m[38;5;245m,[39m[38;5;36m1[39m[38;5;245m][39m[38;5;245m.[39m[38;5;247mmean[39m[38;5;245m([39m[38;5;247mdim[39m[38;5;245m=[39m[38;5;36m0[39m[38;5;245m)[39m[38;5;245m:[39m[38;5;245m [39m[38;5;247mtensor[39m[38;5;245m([39m[38;5;245m[[39m[38;5;245m-[39m[38;5;36m0.0000[39m[38;5;245m,[39m[38;5;245m  [39m[38;5;36m0.0000[39m[38;5;245m,[39m[38;5;245m [39m[38;5;245m-[39m[38;5;36m0.0000[39m[38;5;245m][39m[38;5;245m,[39m[38;5;245m [39m[38;5;247mdevice[39m[38;5;245m=[39m[38;5;36m'[39m[38;5;36msdaa:0[39m[38;5;36m'[39m[38;5;245m)[39m
+
+
+===== module: proteinmpnn =====
+[proteinmpnn] $ bash /data01/tuyilist/cyz/RFantibody/test/proteinmpnn/scripts/ab_seq_design.sh /data01/tuyilist/cyz/RFantibody/linshi/eval_outputs/proteinmpnn  (rc=0, 24.4s)
+Running ProteinMPNN sequence design...
+Input: /data01/tuyilist/cyz/RFantibody/test/proteinmpnn/inputs_for_test
+Loops: H1,H2,H3,L1,L2,L3
+Sequences per structure: 2
+--------------+--------------------------------------------
+ Host IP      | 10.71.13.47
+ PyTorch      | 2.12.0
+ Torch-SDAA   | 3.3.0
+--------------+--------------------------------------------
+ SDAA Driver  | 3.3.0 (N/A)
+ SDAA Runtime | 3.3.0 (/opt/tecoai/lib64/libsdaart.so)
+ SDPTI        | 1.8.0 (/opt/tecoai/lib64/libsdpti.so)
+ TecoDNN      | 3.3.0 (/opt/tecoai/lib64/libtecodnn.so)
+ TecoBLAS     | 3.3.0 (/opt/tecoai/lib64/libtecoblas.so)
+ CustomDNN    | 3.3.0 (/opt/tecoai/lib64/libtecocustom.so)
+ TecoRAND     | 3.1.0 (/opt/tecoai/lib64/libtecorand.so)
+ TCCL         | 3.3.0 (/opt/tecoai/lib64/libtccl.so)
+--------------+--------------------------------------------
+Setting up deterministic mode with fixed seeds
+Found accelerator, will run ProteinMPNN on sdaa:0
+Attempting pose: /data01/tuyilist/cyz/RFantibody/test/proteinmpnn/inputs_for_test/ab_des_0.pdb
+loopH: [26, 27, 28, 29, 30, 31, 32, 52, 53, 54, 55, 56, 57, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+loopL: [144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 170, 171, 172, 173, 174, 175, 176, 209, 210, 211, 212, 213, 214, 215, 216, 217]
+MPNN generated 2 sequences in 18 seconds
+sequence_optimize: [('EVQLVESGGGLVQPGGSLRLSCAASGFNIADHYIHWVRQAPGKGLEWVARINAATGETRYADSVKGRFTISADTSKNTAYLQMNSLRAEDTAVYYCSRQDPANNNALTTWGQGTLVTVSSDIQMTQSPSSLSASVGDRVTITCTSSSSTGSAVQWYQQKPGKAPKLLIYNATTRAPGVPSRFSGSRSGTDFTLTISSLQPEDFATYYCQDTSSGNISFGQGTKVEIK', np.float32(1.6351074)), ('EVQLVESGGGLVQPGGSLRLSCAASGFNISDSYIHWVRQAPGKGLEWVARINASNGSTRYADSVKGRFTISADTSKNTAYLQMNSLRAEDTAVYYCSRQSASSGNAPTVWGQGTLVTVSSDIQMTQSPSSLSASVGDRVTITCTASTAVGGSVSWYQQKPGKAPKLLIYNATSRAPGVPSRFSGSRSGTDFTLTISSLQPEDFATYYCQDLSSGGISFGQGTKVEIK', np.float32(1.4679793))]
+Struct: /data01/tuyilist/cyz/RFantibody/test/proteinmpnn/inputs_for_test/ab_des_0.pdb reported success in 18 seconds
+
+STDERR: Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+
+
+===== module: rf2 =====
+[rf2] $ bash /data01/tuyilist/cyz/RFantibody/test/rf2/scripts/ab_prediction.sh /data01/tuyilist/cyz/RFantibody/linshi/eval_outputs/rf2  (rc=0, 278.4s)
+Running RF2 structure prediction...
+Input: /data01/tuyilist/cyz/RFantibody/test/rf2/inputs_for_test
+Recycles: 1
+Hotspot show proportion: 0.1
+--------------+--------------------------------------------
+ Host IP      | 10.71.13.47
+ PyTorch      | 2.12.0
+ Torch-SDAA   | 3.3.0
+--------------+--------------------------------------------
+ SDAA Driver  | 3.3.0 (N/A)
+ SDAA Runtime | 3.3.0 (/opt/tecoai/lib64/libsdaart.so)
+ SDPTI        | 1.8.0 (/opt/tecoai/lib64/libsdpti.so)
+ TecoDNN      | 3.3.0 (/opt/tecoai/lib64/libtecodnn.so)
+ TecoBLAS     | 3.3.0 (/opt/tecoai/lib64/libtecoblas.so)
+ CustomDNN    | 3.3.0 (/opt/tecoai/lib64/libtecocustom.so)
+ TecoRAND     | 3.1.0 (/opt/tecoai/lib64/libtecorand.so)
+ TCCL         | 3.3.0 (/opt/tecoai/lib64/libtccl.so)
+--------------+--------------------------------------------
+Running RF2 with the following configs: {'input': {'pdb': None, 'pdb_dir': '/data01/tuyilist/cyz/RFantibody/test/rf2/inputs_for_test', 'quiver': None, 'json': None}, 'output': {'pdb_dir': '/data01/tuyilist/cyz/RFantibody/linshi/eval_outputs/rf2', 'quiver': None, 'output_intermediates': False}, 'inference': {'num_recycles': 1, 'hotspot_show_proportion': 0, 'cautious': False, 'seed': 42}, 'model': {'model_weights': '/data01/tuyilist/cyz/RFantibody/weights/RF2_ab.pt'}, 'model_param': {'new_pbind': True, 'n_extra_block': 4, 'n_main_block': 36, 'd_msa': 256, 'd_pair': 128, 'd_templ': 64, 'n_head_msa': 8, 'n_head_pair': 4, 'n_head_templ': 4, 'd_hidden': 32, 'd_hidden_templ': 32, 'd_t1d': 23, 'p_drop': 0.0, 'SE3_param_full': {'num_layers': 1, 'num_channels': 48, 'num_degrees': 2, 'l0_in_features': 32, 'l0_out_features': 32, 'l1_in_features': 2, 'l1_out_features': 2, 'num_edge_features': 32, 'div': 4, 'n_heads': 4}, 'SE3_param_topk': {'num_layers': 1, 'num_channels': 128, 'num_degrees': 2, 'l0_in_features': 64, 'l0_out_features': 64, 'l1_in_features': 2, 'l1_out_features': 2, 'num_edge_features': 64, 'div': 4, 'n_heads': 4}}}
+Setting up deterministic mode with seed 42
+[RF2] Processing: ab_proteinmpnn_output
+[RF2]   Cycle 1/2 - pLDDT: 0.877
+[RF2]   Cycle 2/2 - pLDDT: 0.896
+[RF2] Completed: ab_proteinmpnn_output - Best pLDDT: 0.896
+
+STDERR: ture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+
+
+wrote /data01/tuyilist/cyz/RFantibody/linshi/pc_report/pc_metrics.json
+collected 28 instrumentation records

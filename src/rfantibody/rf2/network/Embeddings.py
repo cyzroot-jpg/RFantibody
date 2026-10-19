@@ -4,6 +4,7 @@ import torch.utils.checkpoint as checkpoint
 
 from rfantibody.rf2.network.Attention_module import Attention
 from rfantibody.rf2.network.Track_module import PairStr2Pair
+from rfantibody.util.torch_compat import SafeEmbedding
 from rfantibody.rf2.network.util import get_Cb
 from rfantibody.rf2.network.util_module import (
     create_custom_forward,
@@ -20,7 +21,7 @@ class PositionalEncoding2D(nn.Module):
         self.minpos = minpos
         self.maxpos = maxpos
         self.nbin = abs(minpos)+maxpos+1
-        self.emb = nn.Embedding(self.nbin, d_model)
+        self.emb = SafeEmbedding(self.nbin, d_model)
         self.d_out = d_model
     
     def forward(self, idx, stride, nc_cycle=False):
@@ -58,10 +59,10 @@ class MSA_emb(nn.Module):
                  minpos=-32, maxpos=32, p_drop=0.1):
         super(MSA_emb, self).__init__()
         self.emb = nn.Linear(d_init, d_msa) # embedding for general MSA
-        self.emb_q = nn.Embedding(22, d_msa) # embedding for query sequence -- used for MSA embedding
-        self.emb_left = nn.Embedding(22, d_pair) # embedding for query sequence -- used for pair embedding
-        self.emb_right = nn.Embedding(22, d_pair) # embedding for query sequence -- used for pair embedding
-        self.emb_state = nn.Embedding(22, d_state)
+        self.emb_q = SafeEmbedding(22, d_msa) # embedding for query sequence -- used for MSA embedding
+        self.emb_left = SafeEmbedding(22, d_pair) # embedding for query sequence -- used for pair embedding
+        self.emb_right = SafeEmbedding(22, d_pair) # embedding for query sequence -- used for pair embedding
+        self.emb_state = SafeEmbedding(22, d_state)
         self.pos = PositionalEncoding2D(d_pair, minpos=minpos, maxpos=maxpos)
 
         self.d_init = d_init
@@ -110,7 +111,7 @@ class Extra_emb(nn.Module):
     def __init__(self, d_msa=256, d_init=22+1+2, p_drop=0.1):
         super(Extra_emb, self).__init__()
         self.emb = nn.Linear(d_init, d_msa) # embedding for general MSA
-        self.emb_q = nn.Embedding(22, d_msa) # embedding for query sequence
+        self.emb_q = SafeEmbedding(22, d_msa) # embedding for query sequence
 
         self.d_init = d_init
         self.d_msa = d_msa

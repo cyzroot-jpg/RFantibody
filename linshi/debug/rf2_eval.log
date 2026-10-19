@@ -1,0 +1,185 @@
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+--------------+--------------------------------------------
+ Host IP      | 10.71.13.47
+ PyTorch      | 2.12.0
+ Torch-SDAA   | 3.3.0
+--------------+--------------------------------------------
+ SDAA Driver  | 3.3.0 (N/A)
+ SDAA Runtime | 3.3.0 (/opt/tecoai/lib64/libsdaart.so)
+ SDPTI        | 1.8.0 (/opt/tecoai/lib64/libsdpti.so)
+ TecoDNN      | 3.3.0 (/opt/tecoai/lib64/libtecodnn.so)
+ TecoBLAS     | 3.3.0 (/opt/tecoai/lib64/libtecoblas.so)
+ CustomDNN    | 3.3.0 (/opt/tecoai/lib64/libtecocustom.so)
+ TecoRAND     | 3.1.0 (/opt/tecoai/lib64/libtecorand.so)
+ TCCL         | 3.3.0 (/opt/tecoai/lib64/libtccl.so)
+--------------+--------------------------------------------
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+/data01/tuyilist/cyz/RFantibody/src/rfantibody/rf2/network/SE3_network.py:75: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  @torch.cuda.amp.autocast(enabled=False)
+Running RF2 with the following configs: {'input': {'pdb': None, 'pdb_dir': 'test/rf2/inputs_for_test', 'quiver': None, 'json': None}, 'output': {'pdb_dir': 'linshi/debug/rf2_eval', 'quiver': None, 'output_intermediates': False}, 'inference': {'num_recycles': 1, 'hotspot_show_proportion': 0, 'cautious': False, 'seed': 42}, 'model': {'model_weights': 'weights/RF2_ab.pt'}, 'model_param': {'new_pbind': True, 'n_extra_block': 4, 'n_main_block': 36, 'd_msa': 256, 'd_pair': 128, 'd_templ': 64, 'n_head_msa': 8, 'n_head_pair': 4, 'n_head_templ': 4, 'd_hidden': 32, 'd_hidden_templ': 32, 'd_t1d': 23, 'p_drop': 0.0, 'SE3_param_full': {'num_layers': 1, 'num_channels': 48, 'num_degrees': 2, 'l0_in_features': 32, 'l0_out_features': 32, 'l1_in_features': 2, 'l1_out_features': 2, 'num_edge_features': 32, 'div': 4, 'n_heads': 4}, 'SE3_param_topk': {'num_layers': 1, 'num_channels': 128, 'num_degrees': 2, 'l0_in_features': 64, 'l0_out_features': 64, 'l1_in_features': 2, 'l1_out_features': 2, 'num_edge_features': 64, 'div': 4, 'n_heads': 4}}}
+Setting up deterministic mode with seed 42
+[RF2] Processing: ab_proteinmpnn_output
+/data01/tuyilist/cyz/RFantibody/include/SE3Transformer/se3_transformer/model/layers/convolution.py:192: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(False):
+/data01/tuyilist/cyz/RFantibody/include/SE3Transformer/se3_transformer/model/layers/attention.py:166: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(False):
+/data01/tuyilist/cyz/RFantibody/include/SE3Transformer/se3_transformer/model/layers/attention.py:81: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(False):
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+Error in cpuinfo: processor architecture is not supported in cpuinfo
+[RF2]   Cycle 1/2 - pLDDT: 0.250
+Error executing job with overrides: ['input.pdb_dir=test/rf2/inputs_for_test', 'output.pdb_dir=linshi/debug/rf2_eval', 'inference.num_recycles=1', 'inference.cautious=False', 'inference.hotspot_show_proportion=0', 'model.model_weights=weights/RF2_ab.pt', '+inference.seed=42']
+Traceback (most recent call last):
+  File "/data01/tuyilist/cyz/RFantibody/scripts/rf2_predict.py", line 40, in main
+    predictor(pose, tag)
+  File "/data01/tuyilist/cyz/RFantibody/src/rfantibody/rf2/modules/model_runner.py", line 82, in __call__
+    metrics_i=self._process_output(output_i, output_pose_i, pose)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data01/tuyilist/cyz/RFantibody/src/rfantibody/rf2/modules/model_runner.py", line 152, in _process_output
+    get_rmsds(output_pose_i, input_pose, metrics)
+  File "/data01/tuyilist/cyz/RFantibody/src/rfantibody/rf2/modules/model_runner.py", line 194, in get_rmsds
+    target_aligned = rmsd.align_to_subset(pose1, pose2, subset='target')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data01/tuyilist/cyz/RFantibody/src/rfantibody/rf2/modules/rmsd.py", line 57, in align_to_subset
+    _, transformation = struc.superimpose(xyz2_subset, xyz1_subset)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/py312/lib/python3.12/site-packages/biotite/structure/superimpose.py", line 179, in superimpose
+    rotation = _get_rotation_matrices(fix_centered_filtered, mob_centered_filtered)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/py312/lib/python3.12/site-packages/biotite/structure/superimpose.py", line 493, in _get_rotation_matrices
+    v, s, w = np.linalg.svd(cov)
+              ^^^^^^^^^^^^^^^^^^
+  File "/home/py312/lib/python3.12/site-packages/numpy/linalg/_linalg.py", line 1840, in svd
+    u, s, vh = gufunc(a, signature=signature)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/py312/lib/python3.12/site-packages/numpy/linalg/_linalg.py", line 153, in _raise_linalgerror_svd_nonconvergence
+    raise LinAlgError("SVD did not converge")
+numpy.linalg.LinAlgError: SVD did not converge
+
+Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.

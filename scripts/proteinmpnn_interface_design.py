@@ -10,6 +10,8 @@ import torch
 import rfantibody.proteinmpnn.util_protein_mpnn as mpnn_util
 from rfantibody.proteinmpnn.sample_features import SampleFeatures
 from rfantibody.proteinmpnn.struct_manager import StructManager
+from rfantibody.util import inference_metrics
+from rfantibody.util.device_utils import device_str, manual_seed_all
 
 #################################
 # Parse Arguments
@@ -67,7 +69,7 @@ if args.deterministic:
     random.seed(42)
     np.random.seed(42)
     torch.manual_seed(42)
-    torch.cuda.manual_seed_all(42)
+    manual_seed_all(42)
     
     # Enable deterministic behavior
     torch.backends.cudnn.deterministic = True
@@ -82,12 +84,11 @@ class ProteinMPNN_runner():
     def __init__(self, args, struct_manager):
         self.struct_manager = struct_manager
 
-        if torch.cuda.is_available():
-            print('Found GPU will run ProteinMPNN on GPU')
-            self.device = "cuda:0"
+        self.device = device_str()
+        if self.device != "cpu":
+            print(f'Found accelerator, will run ProteinMPNN on {self.device}')
         else:
             print('No GPU found, running ProteinMPNN on CPU')
-            self.device = "cpu"
 
         self.mpnn_model = mpnn_util.init_seq_optimize_model(
             self.device,
@@ -156,6 +157,7 @@ class ProteinMPNN_runner():
 
     def run_model(self, tag, args):
         t0 = time.time()
+        metrics_t0 = inference_metrics.start()
 
         print(f"Attempting pose: {tag}")
         
@@ -171,6 +173,16 @@ class ProteinMPNN_runner():
         self.proteinmpnn(sample_feats)
 
         seconds = int(time.time() - t0)
+
+        inference_metrics.finish(
+            'proteinmpnn', tag, metrics_t0,
+            {
+                'seqs_per_struct': int(args.seqs_per_struct),
+                'temperature': float(args.temperature),
+                'loops': args.loop_string,
+                'output': 'quiver' if args.outquiver else 'pdb',
+            },
+        )
 
         print(f"Struct: {pdb} reported success in {seconds} seconds")
 

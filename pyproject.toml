@@ -3,7 +3,7 @@ name = "rfantibody"
 version = "1.0.0"
 description = ""
 readme = "README.md"
-requires-python = "==3.10.*"
+requires-python = ">=3.10"
 authors = [
     { name = "Nate Bennett", email = "nrbennett2@gmail.com" },
     { name = "Joe Watchwell", email = "joe.watchwell@gmail.com" }
@@ -19,7 +19,6 @@ dependencies = [
     "icecream",
     "opt-einsum",
     "biotite>=0.38.0",
-    "dgl",
     "e3nn",
     "pyrsistent",
     "click>=8.0.0",
@@ -51,7 +50,6 @@ rf2 = "rfantibody.cli.inference:rf2"
 torch = { index = "pytorch" }
 torchaudio = { index = "pytorch" }
 torchvision = { index = "pytorch" }
-dgl = { url = "https://data.dgl.ai/wheels/torch-2.3/cu118/dgl-2.4.0%2Bcu118-cp310-cp310-manylinux1_x86_64.whl" }
 
 [[tool.uv.index]]
 name = "pytorch"
@@ -66,6 +64,7 @@ build-backend = "hatchling.build"
 packages = [
     "src/rfantibody",
     "include/SE3Transformer/se3_transformer",
+    "dgl",
     "test",
 ]
 

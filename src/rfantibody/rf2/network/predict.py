@@ -19,6 +19,7 @@ from rfantibody.rf2.network.parsers import parse_a3m, read_template_pdb, read_te
 from rfantibody.rf2.network.RoseTTAFoldModel import RoseTTAFoldModule
 from rfantibody.rf2.network.symmetry import find_symm_subs, symm_subunit_matrix
 from rfantibody.rf2.network.util_module import XYZConverter
+from rfantibody.util import device_utils
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -200,13 +201,13 @@ def merge_a3m_homo(msa_orig, ins_orig, nmer, mode="default"):
     return msa, ins
 
 class Predictor():
-    def __init__(self, model_weights, device="cuda:0", model_param=None):
+    def __init__(self, model_weights, device=None, model_param=None):
         # define model name
         self.model_weights = model_weights
         if not os.path.exists(model_weights):
             self.model_weights = os.path.dirname(__file__) + '/' + model_weights
 
-        self.device = device
+        self.device = device if device is not None else device_utils.get_device()
         self.active_fn = nn.Softmax(dim=1)
 
         # define model & load model
@@ -417,7 +418,7 @@ class Predictor():
         for i_trial in range(n_models):
             #if os.path.exists("%s_%02d_init.pdb"%(out_prefix, i_trial)):
             #    continue
-            torch.cuda.reset_peak_memory_stats()
+            device_utils.reset_peak_memory_stats()
             start_time = time.time()
             self.run_prediction(
                 msa_orig, ins_orig, 
@@ -429,9 +430,9 @@ class Predictor():
                 msa_mask=msa_mask
             )
             runtime = time.time() - start_time
-            vram = torch.cuda.max_memory_allocated() / 1e9
+            vram = device_utils.max_memory_allocated() / 1e9
             print(f"runtime={runtime:.2f} vram={vram:.2f}")
-            torch.cuda.empty_cache()
+            device_utils.empty_cache()
 
     def run_prediction(
         self, msa_orig, ins_orig, 
@@ -503,7 +504,7 @@ class Predictor():
 
                 xyz_prev_prev = xyz_prev.clone()
 
-                with torch.cuda.amp.autocast(True):
+                with device_utils.autocast(True):
                     logit_s, _, _, logits_pae, p_bind, xyz_prev, alpha, symmsub, pred_lddt, msa_prev, pair_prev, state_prev = self.model(
                                                                msa_seed, msa_extra,
                                                                seq, xyz_prev, 
@@ -540,7 +541,7 @@ class Predictor():
 
                 print (f"recycle {i_cycle} plddt {pred_lddt.mean():.3f} pae {logits_pae.mean():.3f} rmsd {rmsd[0]:.3f}")
 
-                torch.cuda.empty_cache()
+                device_utils.empty_cache()
                 if pred_lddt.mean() < best_lddt.mean():
                     pred_lddt, logits_pae, logit_s = None, None, None
                     continue
@@ -611,9 +612,9 @@ if __name__ == "__main__":
     else:
         ffdb = None
 
-    if (torch.cuda.is_available()):
-        print ("Running on GPU")
-        pred = Predictor(args.model, torch.device("cuda:0"))
+    if device_utils.accelerator_available():
+        print (f"Running on {device_utils.get_backend()}")
+        pred = Predictor(args.model, device_utils.get_device())
     else:
         print ("Running on CPU")
         pred = Predictor(args.model, torch.device("cpu"))

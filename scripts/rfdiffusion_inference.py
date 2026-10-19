@@ -31,6 +31,8 @@ from omegaconf import OmegaConf
 from rfantibody.rfdiffusion.chemical import num2aa
 from rfantibody.rfdiffusion.inference import model_runners
 from rfantibody.rfdiffusion.util import generate_Cbeta, writepdb, writepdb_multi
+from rfantibody.util import inference_metrics
+from rfantibody.util.device_utils import get_device_name
 from rfantibody.util.io import ab_write_pdblines
 from rfantibody.util.quiver import Quiver
 
@@ -133,6 +135,7 @@ def main(conf: HydraConfig) -> None:
                 continue
 
         # to track hotspots through inference
+        metrics_t0 = inference_metrics.start()
         failed=0
         while True:
 
@@ -213,7 +216,7 @@ def main(conf: HydraConfig) -> None:
         trb = dict(
             config = OmegaConf.to_container(sampler._conf, resolve=True),
             plddt = plddt_stack.cpu().numpy(),
-            device = torch.cuda.get_device_name(torch.cuda.current_device()) if torch.cuda.is_available() else 'CPU',
+            device = get_device_name(),
             time = time.time() - start_time
         )
 
@@ -322,6 +325,16 @@ def main(conf: HydraConfig) -> None:
                 writepdb_multi(out_px0, px0_xyz_stack, bfacts, 
                     final_seq.squeeze(), use_hydrogens=False, backbone_only=False, chain_ids=sampler.chain_idx)
 
+        inference_metrics.finish(
+            'rfdiffusion', out_prefix, metrics_t0,
+            {
+                'num_designs': sampler.inf_conf.num_designs,
+                'diffuser_T': int(conf.diffuser.T),
+                'final_step': int(sampler.inf_conf.final_step),
+                'num_residues': int(denoised_xyz_stack.shape[1]),
+                'output': 'quiver' if sampler.inf_conf.quiver is not None else 'pdb',
+            },
+        )
         log.info(f'Finished design in {(time.time()-start_time)/60:.2f} minutes')
 
 if __name__ == '__main__':

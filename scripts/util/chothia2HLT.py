@@ -9,6 +9,7 @@ HLT format requirements:
 """
 
 import argparse
+import io
 
 import numpy as np
 from biotite.structure import array, residue_iter
@@ -232,10 +233,18 @@ def main():
     # Create new PDB file with converted structure
     pdb_file = PDBFile()
     pdb_file.set_structure(hlt_structure)
-    
+
+    # Render the structure to a string first so we can guarantee a trailing
+    # newline before appending REMARK lines. Some biotite versions do not emit
+    # a final newline, which would otherwise concatenate the first REMARK
+    # annotation onto the last ATOM record.
+    buffer = io.StringIO()
+    pdb_file.write(buffer)
+    structure_text = buffer.getvalue().rstrip("\n") + "\n"
+
     # Write structure and CDR annotations
     with open(output_path, 'w') as f:
-        pdb_file.write(f)
+        f.write(structure_text)
         # Add CDR annotations as REMARK statements
         # Format: REMARK PDBinfo-LABEL: <residue_number> <CDR_name>
         for cdr in sorted(cdr_residues.keys()):

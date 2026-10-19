@@ -1,0 +1,5 @@
+#!/bin/bash
+# Minimal 'uv' shim so the official RFantibody test scripts can run without uv.
+# It simply strips the leading 'run' subcommand and executes the rest.
+if [ "$1" = "run" ]; then shift; fi
+exec "$@"

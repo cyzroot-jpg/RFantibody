@@ -10,6 +10,7 @@ from omegaconf import OmegaConf
 import rfantibody.rf2.modules.pose_util as pu
 import rfantibody.rf2.modules.rmsd as rmsd
 from rfantibody.rf2.network.predict import Predictor, pae_unbin
+from rfantibody.util import device_utils, inference_metrics
 from rfantibody.util.quiver import Quiver
 
 
@@ -17,13 +18,13 @@ class AbPredictor(Predictor):
     """
     Subclass of RF2 Predictor class, to predict Ab structures
     """
-    def __init__(self, conf: HydraConfig, preprocess_fn: Preprocess, device='cuda:0'):
+    def __init__(self, conf: HydraConfig, preprocess_fn: Preprocess, device=None):
         """
         Initialise from config
         """
         self.conf=conf
         self.preprocess_fn=preprocess_fn
-        self.device=device
+        self.device=device if device is not None else device_utils.get_device()
         #self._update_params_from_checkpoint()        
         super().__init__(self.conf.model.model_weights, self.device, model_param=self.conf.model_param)
         self.return_rmsds=any([var is not None for var in [conf.input.pdb, conf.input.pdb_dir, conf.input.quiver]])
@@ -63,6 +64,7 @@ class AbPredictor(Predictor):
         best_lddt = torch.tensor([-1.0], device=self.device)
 
         to_write=OrderedDict()
+        metrics_t0 = inference_metrics.start()
         print(f"[RF2] Processing: {tag}")
         with torch.no_grad():
             for i_cycle in range(self.conf.inference.num_recycles + 1):
@@ -86,9 +88,18 @@ class AbPredictor(Predictor):
                     to_write['best'] = {'pose': best_pose, 'metrics': best_metrics}
                 if self.conf.output.output_intermediates:
                     to_write[i_cycle] = {'pose': output_pose_i, 'metrics': metrics_i}
-                torch.cuda.empty_cache()
+                device_utils.empty_cache()
         print(f"[RF2] Completed: {tag} - Best pLDDT: {best_lddt.mean():.3f}")
         write_output(to_write, tag, self.conf)
+        inference_metrics.finish(
+            'rf2', tag, metrics_t0,
+            {
+                'num_recycles': int(self.conf.inference.num_recycles),
+                'best_lddt': round(float(best_lddt.mean()), 4),
+                'num_residues': int(xyz_true.shape[0]) if xyz_true is not None else 0,
+                'output': 'quiver' if self.conf.output.quiver is not None else 'pdb',
+            },
+        )
 
     def _update_params_from_checkpoint(self) -> None:
         """
