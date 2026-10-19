@@ -5,8 +5,8 @@
                         "npm": "@ai-sdk/openai-compatible",
                         "name": "TecoCoder",
                         "options": {
-                                "baseURL": "http://10.10.30.8:3000/v1",
-                                "apiKey": "sk-tpq8CAbpVTXAfGudMJTJZoIf8PjetF5oApEdh8XXDtS6yfp1"
+                                "baseURL": "http://xx.xx.xx.xxx:xxxx/v1",
+                                "apiKey": "sk-xxxxx"
                         },
                         "models": {
                                 "Qwen3.6-27B": {
