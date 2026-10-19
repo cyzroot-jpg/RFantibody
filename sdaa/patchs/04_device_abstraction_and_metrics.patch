@@ -1,0 +1,571 @@
+diff --git a/scripts/proteinmpnn_interface_design.py b/scripts/proteinmpnn_interface_design.py
+index c6fcb19..554f497 100755
+--- a/scripts/proteinmpnn_interface_design.py
++++ b/scripts/proteinmpnn_interface_design.py
+@@ -10,6 +10,8 @@ import torch
+ import rfantibody.proteinmpnn.util_protein_mpnn as mpnn_util
+ from rfantibody.proteinmpnn.sample_features import SampleFeatures
+ from rfantibody.proteinmpnn.struct_manager import StructManager
++from rfantibody.util import inference_metrics
++from rfantibody.util.device_utils import device_str, manual_seed_all
+ 
+ #################################
+ # Parse Arguments
+@@ -67,7 +69,7 @@ if args.deterministic:
+     random.seed(42)
+     np.random.seed(42)
+     torch.manual_seed(42)
+-    torch.cuda.manual_seed_all(42)
++    manual_seed_all(42)
+     
+     # Enable deterministic behavior
+     torch.backends.cudnn.deterministic = True
+@@ -82,12 +84,11 @@ class ProteinMPNN_runner():
+     def __init__(self, args, struct_manager):
+         self.struct_manager = struct_manager
+ 
+-        if torch.cuda.is_available():
+-            print('Found GPU will run ProteinMPNN on GPU')
+-            self.device = "cuda:0"
++        self.device = device_str()
++        if self.device != "cpu":
++            print(f'Found accelerator, will run ProteinMPNN on {self.device}')
+         else:
+             print('No GPU found, running ProteinMPNN on CPU')
+-            self.device = "cpu"
+ 
+         self.mpnn_model = mpnn_util.init_seq_optimize_model(
+             self.device,
+@@ -156,6 +157,7 @@ class ProteinMPNN_runner():
+ 
+     def run_model(self, tag, args):
+         t0 = time.time()
++        metrics_t0 = inference_metrics.start()
+ 
+         print(f"Attempting pose: {tag}")
+         
+@@ -172,6 +174,16 @@ class ProteinMPNN_runner():
+ 
+         seconds = int(time.time() - t0)
+ 
++        inference_metrics.finish(
++            'proteinmpnn', tag, metrics_t0,
++            {
++                'seqs_per_struct': int(args.seqs_per_struct),
++                'temperature': float(args.temperature),
++                'loops': args.loop_string,
++                'output': 'quiver' if args.outquiver else 'pdb',
++            },
++        )
++
+         print(f"Struct: {pdb} reported success in {seconds} seconds")
+ 
+ 
+diff --git a/scripts/rf2_predict.py b/scripts/rf2_predict.py
+index 867da10..83c1fdb 100644
+--- a/scripts/rf2_predict.py
++++ b/scripts/rf2_predict.py
+@@ -8,6 +8,7 @@ import rfantibody.rf2.modules.pose_util as pu
+ import rfantibody.rf2.modules.util as util
+ from rfantibody.rf2.modules.model_runner import AbPredictor
+ from rfantibody.rf2.modules.preprocess import Preprocess, pose_to_inference_RFinput
++from rfantibody.util.device_utils import get_device, manual_seed_all
+ 
+ 
+ @hydra.main(version_base=None, config_path='../src/rfantibody/rf2/config', config_name='base')
+@@ -24,12 +25,12 @@ def main(conf: HydraConfig) -> None:
+         random.seed(seed)
+         np.random.seed(seed)
+         torch.manual_seed(seed)
+-        torch.cuda.manual_seed_all(seed)
++        manual_seed_all(seed)
+         torch.backends.cudnn.deterministic = True
+         torch.backends.cudnn.benchmark = False
+     
+     done_list=util.get_done_list(conf)
+-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
++    device = get_device()
+     preprocessor=Preprocess(pose_to_inference_RFinput, conf)
+     predictor=AbPredictor(conf, preprocess_fn=preprocessor, device=device)
+     for pose, tag in pu.pose_generator(conf):
+diff --git a/scripts/rfdiffusion_inference.py b/scripts/rfdiffusion_inference.py
+index 964e87b..6911738 100644
+--- a/scripts/rfdiffusion_inference.py
++++ b/scripts/rfdiffusion_inference.py
+@@ -31,6 +31,8 @@ from omegaconf import OmegaConf
+ from rfantibody.rfdiffusion.chemical import num2aa
+ from rfantibody.rfdiffusion.inference import model_runners
+ from rfantibody.rfdiffusion.util import generate_Cbeta, writepdb, writepdb_multi
++from rfantibody.util import inference_metrics
++from rfantibody.util.device_utils import get_device_name
+ from rfantibody.util.io import ab_write_pdblines
+ from rfantibody.util.quiver import Quiver
+ 
+@@ -133,6 +135,7 @@ def main(conf: HydraConfig) -> None:
+                 continue
+ 
+         # to track hotspots through inference
++        metrics_t0 = inference_metrics.start()
+         failed=0
+         while True:
+ 
+@@ -213,7 +216,7 @@ def main(conf: HydraConfig) -> None:
+         trb = dict(
+             config = OmegaConf.to_container(sampler._conf, resolve=True),
+             plddt = plddt_stack.cpu().numpy(),
+-            device = torch.cuda.get_device_name(torch.cuda.current_device()) if torch.cuda.is_available() else 'CPU',
++            device = get_device_name(),
+             time = time.time() - start_time
+         )
+ 
+@@ -322,6 +325,16 @@ def main(conf: HydraConfig) -> None:
+                 writepdb_multi(out_px0, px0_xyz_stack, bfacts, 
+                     final_seq.squeeze(), use_hydrogens=False, backbone_only=False, chain_ids=sampler.chain_idx)
+ 
++        inference_metrics.finish(
++            'rfdiffusion', out_prefix, metrics_t0,
++            {
++                'num_designs': sampler.inf_conf.num_designs,
++                'diffuser_T': int(conf.diffuser.T),
++                'final_step': int(sampler.inf_conf.final_step),
++                'num_residues': int(denoised_xyz_stack.shape[1]),
++                'output': 'quiver' if sampler.inf_conf.quiver is not None else 'pdb',
++            },
++        )
+         log.info(f'Finished design in {(time.time()-start_time)/60:.2f} minutes')
+ 
+ if __name__ == '__main__':
+diff --git a/scripts/util/chothia2HLT.py b/scripts/util/chothia2HLT.py
+index c8b9df1..c1eb10a 100644
+--- a/scripts/util/chothia2HLT.py
++++ b/scripts/util/chothia2HLT.py
+@@ -9,6 +9,7 @@ HLT format requirements:
+ """
+ 
+ import argparse
++import io
+ 
+ import numpy as np
+ from biotite.structure import array, residue_iter
+@@ -232,10 +233,18 @@ def main():
+     # Create new PDB file with converted structure
+     pdb_file = PDBFile()
+     pdb_file.set_structure(hlt_structure)
+-    
++
++    # Render the structure to a string first so we can guarantee a trailing
++    # newline before appending REMARK lines. Some biotite versions do not emit
++    # a final newline, which would otherwise concatenate the first REMARK
++    # annotation onto the last ATOM record.
++    buffer = io.StringIO()
++    pdb_file.write(buffer)
++    structure_text = buffer.getvalue().rstrip("\n") + "\n"
++
+     # Write structure and CDR annotations
+     with open(output_path, 'w') as f:
+-        pdb_file.write(f)
++        f.write(structure_text)
+         # Add CDR annotations as REMARK statements
+         # Format: REMARK PDBinfo-LABEL: <residue_number> <CDR_name>
+         for cdr in sorted(cdr_residues.keys()):
+diff --git a/src/rfantibody/rf2/modules/model_runner.py b/src/rfantibody/rf2/modules/model_runner.py
+index 00e962a..72c588f 100644
+--- a/src/rfantibody/rf2/modules/model_runner.py
++++ b/src/rfantibody/rf2/modules/model_runner.py
+@@ -10,6 +10,7 @@ from omegaconf import OmegaConf
+ import rfantibody.rf2.modules.pose_util as pu
+ import rfantibody.rf2.modules.rmsd as rmsd
+ from rfantibody.rf2.network.predict import Predictor, pae_unbin
++from rfantibody.util import device_utils, inference_metrics
+ from rfantibody.util.quiver import Quiver
+ 
+ 
+@@ -17,13 +18,13 @@ class AbPredictor(Predictor):
+     """
+     Subclass of RF2 Predictor class, to predict Ab structures
+     """
+-    def __init__(self, conf: HydraConfig, preprocess_fn: Preprocess, device='cuda:0'):
++    def __init__(self, conf: HydraConfig, preprocess_fn: Preprocess, device=None):
+         """
+         Initialise from config
+         """
+         self.conf=conf
+         self.preprocess_fn=preprocess_fn
+-        self.device=device
++        self.device=device if device is not None else device_utils.get_device()
+         #self._update_params_from_checkpoint()        
+         super().__init__(self.conf.model.model_weights, self.device, model_param=self.conf.model_param)
+         self.return_rmsds=any([var is not None for var in [conf.input.pdb, conf.input.pdb_dir, conf.input.quiver]])
+@@ -63,6 +64,7 @@ class AbPredictor(Predictor):
+         best_lddt = torch.tensor([-1.0], device=self.device)
+ 
+         to_write=OrderedDict()
++        metrics_t0 = inference_metrics.start()
+         print(f"[RF2] Processing: {tag}")
+         with torch.no_grad():
+             for i_cycle in range(self.conf.inference.num_recycles + 1):
+@@ -86,9 +88,18 @@ class AbPredictor(Predictor):
+                     to_write['best'] = {'pose': best_pose, 'metrics': best_metrics}
+                 if self.conf.output.output_intermediates:
+                     to_write[i_cycle] = {'pose': output_pose_i, 'metrics': metrics_i}
+-                torch.cuda.empty_cache()
++                device_utils.empty_cache()
+         print(f"[RF2] Completed: {tag} - Best pLDDT: {best_lddt.mean():.3f}")
+         write_output(to_write, tag, self.conf)
++        inference_metrics.finish(
++            'rf2', tag, metrics_t0,
++            {
++                'num_recycles': int(self.conf.inference.num_recycles),
++                'best_lddt': round(float(best_lddt.mean()), 4),
++                'num_residues': int(xyz_true.shape[0]) if xyz_true is not None else 0,
++                'output': 'quiver' if self.conf.output.quiver is not None else 'pdb',
++            },
++        )
+ 
+     def _update_params_from_checkpoint(self) -> None:
+         """
+diff --git a/src/rfantibody/rf2/network/predict.py b/src/rfantibody/rf2/network/predict.py
+index 5847e5d..8d377ba 100644
+--- a/src/rfantibody/rf2/network/predict.py
++++ b/src/rfantibody/rf2/network/predict.py
+@@ -19,6 +19,7 @@ from rfantibody.rf2.network.parsers import parse_a3m, read_template_pdb, read_te
+ from rfantibody.rf2.network.RoseTTAFoldModel import RoseTTAFoldModule
+ from rfantibody.rf2.network.symmetry import find_symm_subs, symm_subunit_matrix
+ from rfantibody.rf2.network.util_module import XYZConverter
++from rfantibody.util import device_utils
+ 
+ warnings.filterwarnings("ignore", category=UserWarning)
+ 
+@@ -200,13 +201,13 @@ def merge_a3m_homo(msa_orig, ins_orig, nmer, mode="default"):
+     return msa, ins
+ 
+ class Predictor():
+-    def __init__(self, model_weights, device="cuda:0", model_param=None):
++    def __init__(self, model_weights, device=None, model_param=None):
+         # define model name
+         self.model_weights = model_weights
+         if not os.path.exists(model_weights):
+             self.model_weights = os.path.dirname(__file__) + '/' + model_weights
+ 
+-        self.device = device
++        self.device = device if device is not None else device_utils.get_device()
+         self.active_fn = nn.Softmax(dim=1)
+ 
+         # define model & load model
+@@ -417,7 +418,7 @@ class Predictor():
+         for i_trial in range(n_models):
+             #if os.path.exists("%s_%02d_init.pdb"%(out_prefix, i_trial)):
+             #    continue
+-            torch.cuda.reset_peak_memory_stats()
++            device_utils.reset_peak_memory_stats()
+             start_time = time.time()
+             self.run_prediction(
+                 msa_orig, ins_orig, 
+@@ -429,9 +430,9 @@ class Predictor():
+                 msa_mask=msa_mask
+             )
+             runtime = time.time() - start_time
+-            vram = torch.cuda.max_memory_allocated() / 1e9
++            vram = device_utils.max_memory_allocated() / 1e9
+             print(f"runtime={runtime:.2f} vram={vram:.2f}")
+-            torch.cuda.empty_cache()
++            device_utils.empty_cache()
+ 
+     def run_prediction(
+         self, msa_orig, ins_orig, 
+@@ -503,7 +504,7 @@ class Predictor():
+ 
+                 xyz_prev_prev = xyz_prev.clone()
+ 
+-                with torch.cuda.amp.autocast(True):
++                with device_utils.autocast(True):
+                     logit_s, _, _, logits_pae, p_bind, xyz_prev, alpha, symmsub, pred_lddt, msa_prev, pair_prev, state_prev = self.model(
+                                                                msa_seed, msa_extra,
+                                                                seq, xyz_prev, 
+@@ -540,7 +541,7 @@ class Predictor():
+ 
+                 print (f"recycle {i_cycle} plddt {pred_lddt.mean():.3f} pae {logits_pae.mean():.3f} rmsd {rmsd[0]:.3f}")
+ 
+-                torch.cuda.empty_cache()
++                device_utils.empty_cache()
+                 if pred_lddt.mean() < best_lddt.mean():
+                     pred_lddt, logits_pae, logit_s = None, None, None
+                     continue
+@@ -611,9 +612,9 @@ if __name__ == "__main__":
+     else:
+         ffdb = None
+ 
+-    if (torch.cuda.is_available()):
+-        print ("Running on GPU")
+-        pred = Predictor(args.model, torch.device("cuda:0"))
++    if device_utils.accelerator_available():
++        print (f"Running on {device_utils.get_backend()}")
++        pred = Predictor(args.model, device_utils.get_device())
+     else:
+         print ("Running on CPU")
+         pred = Predictor(args.model, torch.device("cpu"))
+diff --git a/src/rfantibody/rfdiffusion/inference/model_runners.py b/src/rfantibody/rfdiffusion/inference/model_runners.py
+index 03b37ad..3eca77c 100644
+--- a/src/rfantibody/rfdiffusion/inference/model_runners.py
++++ b/src/rfantibody/rfdiffusion/inference/model_runners.py
+@@ -25,6 +25,7 @@ from rfantibody.rfdiffusion.potentials.manager import PotentialManager
+ from rfantibody.rfdiffusion.RoseTTAFoldModel import RoseTTAFoldModule
+ from rfantibody.rfdiffusion.util import Dotdict
+ from rfantibody.rfdiffusion.util_module import ComputeAllAtomCoords
++from rfantibody.util import device_utils
+ 
+ TOR_INDICES  = rfantibody.rfdiffusion.util.torsion_indices
+ TOR_CAN_FLIP = rfantibody.rfdiffusion.util.torsion_can_flip
+@@ -46,10 +47,7 @@ class Sampler:
+ 
+     def initialize(self, conf: DictConfig):
+         self._log = logging.getLogger(__name__)
+-        if torch.cuda.is_available():
+-            self.device = torch.device('cuda')
+-        else:
+-            self.device = torch.device('cpu')
++        self.device = device_utils.get_device()
+         needs_model_reload = not self.initialized or conf.inference.ckpt_override_path != self._conf.inference.ckpt_override_path
+ 
+         # Assign config to Sampler
+diff --git a/src/rfantibody/util/device_utils.py b/src/rfantibody/util/device_utils.py
+new file mode 100644
+index 0000000..8d05032
+--- /dev/null
++++ b/src/rfantibody/util/device_utils.py
+@@ -0,0 +1,138 @@
++"""
++Device-agnostic helpers for running RFantibody on CPU, CUDA or Tecorigin SDAA.
++
++The pipeline was written against ``torch.cuda``. On Tecorigin SDAA ``torch.cuda``
++exists only as a stub (``torch.cuda.is_available()`` is ``False``) while the real
++API lives in ``torch.sdaa``. This module selects the best available accelerator
++once and exposes a small, uniform surface used across the codebase.
++
++Backend selection order (override with ``RFANTIBODY_DEVICE`` = sdaa|cuda|cpu):
++    1. SDAA   (``torch.sdaa.is_available()``)
++    2. CUDA   (``torch.cuda.is_available()``)
++    3. CPU
++"""
++
++import os
++from contextlib import nullcontext
++
++import torch
++
++try:  # importing torch_sdaa registers torch.sdaa
++    import torch_sdaa  # noqa: F401
++except Exception:  # pragma: no cover - torch.sdaa may already exist
++    pass
++
++
++def _sdaa_available() -> bool:
++    return hasattr(torch, "sdaa") and torch.sdaa.is_available()
++
++
++def _cuda_available() -> bool:
++    return torch.cuda.is_available()
++
++
++def get_backend() -> str:
++    """Return the active backend name: ``'sdaa'``, ``'cuda'`` or ``'cpu'``."""
++    forced = os.environ.get("RFANTIBODY_DEVICE", "").lower()
++    if forced in ("sdaa", "cuda", "cpu"):
++        return forced
++    if _sdaa_available():
++        return "sdaa"
++    if _cuda_available():
++        return "cuda"
++    return "cpu"
++
++
++def accelerator_available() -> bool:
++    """True when a GPU-like accelerator (SDAA or CUDA) is available."""
++    return get_backend() in ("sdaa", "cuda")
++
++
++def _backend_module():
++    """Return the torch submodule implementing the active accelerator API."""
++    return getattr(torch, get_backend())
++
++
++def device_str(index: int = 0) -> str:
++    """Return a device string, e.g. ``'sdaa:0'``, ``'cuda:0'`` or ``'cpu'``."""
++    backend = get_backend()
++    if backend == "cpu":
++        return "cpu"
++    return f"{backend}:{index}"
++
++
++def get_device(index: int = 0) -> torch.device:
++    return torch.device(device_str(index))
++
++
++def empty_cache() -> None:
++    if accelerator_available():
++        _backend_module().empty_cache()
++
++
++def synchronize() -> None:
++    if accelerator_available():
++        _backend_module().synchronize()
++
++
++def manual_seed_all(seed: int) -> None:
++    if accelerator_available():
++        _backend_module().manual_seed_all(seed)
++
++
++def current_device() -> int:
++    if accelerator_available():
++        return _backend_module().current_device()
++    return -1
++
++
++def device_count() -> int:
++    if accelerator_available():
++        return _backend_module().device_count()
++    return 0
++
++
++def get_device_name(index: int = 0) -> str:
++    if not accelerator_available():
++        return "CPU"
++    try:
++        return _backend_module().get_device_name(index)
++    except Exception:
++        return device_str(index)
++
++
++def max_memory_allocated(index: int = 0) -> int:
++    if not accelerator_available():
++        return 0
++    return _backend_module().max_memory_allocated(index)
++
++
++def memory_allocated(index: int = 0) -> int:
++    if not accelerator_available():
++        return 0
++    return _backend_module().memory_allocated(index)
++
++
++def reset_peak_memory_stats(index: int = 0) -> None:
++    if accelerator_available():
++        _backend_module().reset_peak_memory_stats(index)
++
++
++def autocast(enabled: bool = True):
++    """Return an autocast context for the active backend (no-op if unsupported)."""
++    if not enabled or not accelerator_available():
++        return nullcontext()
++    try:
++        return torch.autocast(device_type=get_backend(), enabled=enabled)
++    except Exception:
++        return nullcontext()
++
++
++def device_memory_info(index: int = 0):
++    """Return ``(free_bytes, total_bytes)`` for the active accelerator, or None."""
++    if not accelerator_available():
++        return None
++    try:
++        return _backend_module().mem_get_info(index)
++    except Exception:
++        return None
+\ No newline at end of file
+diff --git a/src/rfantibody/util/inference_metrics.py b/src/rfantibody/util/inference_metrics.py
+new file mode 100644
+index 0000000..ad02f86
+--- /dev/null
++++ b/src/rfantibody/util/inference_metrics.py
+@@ -0,0 +1,89 @@
++"""
++Lightweight, non-invasive inference instrumentation.
++
++Records wall-clock inference time, accelerator peak/current memory usage and
++throughput for each inference unit (one RFdiffusion design, one RF2 pose, one
++ProteinMPNN structure). Records are appended as JSON lines so they can be
++aggregated later without touching the models' normal output.
++
++The instrumentation is *additive*: it never changes model inputs/outputs and
++fails silently if the accelerator exposes no memory API.
++
++Control via environment variables:
++    RFANTIBODY_PROFILE=0            disable instrumentation
++    RFANTIBODY_METRICS_FILE=<path>  override output file
++                                    (default: <project_root>/linshi/logs/inference_metrics.jsonl)
++"""
++
++import json
++import os
++import time
++
++from rfantibody.util import device_utils
++
++
++def _default_metrics_file() -> str:
++    root = os.environ.get("RFANTIBODY_ROOT")
++    if not root:
++        # src/rfantibody/util/inference_metrics.py -> project root is 4 levels up
++        root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
++    return os.path.join(root, "linshi", "logs", "inference_metrics.jsonl")
++
++
++def metrics_file() -> str:
++    return os.path.abspath(os.environ.get("RFANTIBODY_METRICS_FILE") or _default_metrics_file())
++
++
++def profiling_enabled() -> bool:
++    return os.environ.get("RFANTIBODY_PROFILE", "1") != "0"
++
++
++def start() -> float:
++    """Reset peak memory and return a high-resolution start timestamp."""
++    if not profiling_enabled():
++        return time.perf_counter()
++    try:
++        device_utils.synchronize()
++        device_utils.reset_peak_memory_stats()
++    except Exception:
++        pass
++    return time.perf_counter()
++
++
++def finish(script: str, tag: str, t0: float, extra: dict = None) -> dict:
++    """Finalise an inference record and append it to the metrics file."""
++    try:
++        device_utils.synchronize()
++    except Exception:
++        pass
++    elapsed = time.perf_counter() - t0
++
++    record = {
++        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
++        "script": script,
++        "tag": tag,
++        "backend": device_utils.get_backend(),
++        "device": device_utils.device_str(),
++        "device_name": device_utils.get_device_name(),
++        "elapsed_sec": round(elapsed, 6),
++        "peak_mem_bytes": device_utils.max_memory_allocated(),
++        "used_mem_bytes": device_utils.memory_allocated(),
++    }
++    mem = device_utils.device_memory_info()
++    record["total_mem_bytes"] = mem[1] if mem else 0
++    if extra:
++        record.update(extra)
++
++    if profiling_enabled():
++        _append(record)
++    return record
++
++
++def _append(record: dict) -> None:
++    path = metrics_file()
++    try:
++        os.makedirs(os.path.dirname(path), exist_ok=True)
++        with open(path, "a") as f:
++            f.write(json.dumps(record) + "\n")
++    except Exception:
++        pass
+\ No newline at end of file

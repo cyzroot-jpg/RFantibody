@@ -1,0 +1,88 @@
+diff --git a/include/SE3Transformer/se3_transformer/model/basis.py b/include/SE3Transformer/se3_transformer/model/basis.py
+index 74f04a0..f41a6dd 100644
+--- a/include/SE3Transformer/se3_transformer/model/basis.py
++++ b/include/SE3Transformer/se3_transformer/model/basis.py
+@@ -29,7 +29,7 @@ import e3nn.o3 as o3
+ import torch
+ import torch.nn.functional as F
+ from torch import Tensor
+-from torch.cuda.nvtx import range as nvtx_range
++from se3_transformer.runtime.nvtx import range as nvtx_range
+ 
+ from se3_transformer.runtime.utils import degree_to_dim
+ 
+diff --git a/include/SE3Transformer/se3_transformer/model/layers/attention.py b/include/SE3Transformer/se3_transformer/model/layers/attention.py
+index 1be3219..0d2cd39 100644
+--- a/include/SE3Transformer/se3_transformer/model/layers/attention.py
++++ b/include/SE3Transformer/se3_transformer/model/layers/attention.py
+@@ -34,7 +34,7 @@ from se3_transformer.model.fiber import Fiber
+ from se3_transformer.model.layers.convolution import ConvSE3, ConvSE3FuseLevel
+ from se3_transformer.model.layers.linear import LinearSE3
+ from se3_transformer.runtime.utils import degree_to_dim, aggregate_residual, unfuse_features
+-from torch.cuda.nvtx import range as nvtx_range
++from se3_transformer.runtime.nvtx import range as nvtx_range
+ 
+ 
+ class AttentionSE3(nn.Module):
+diff --git a/include/SE3Transformer/se3_transformer/model/layers/convolution.py b/include/SE3Transformer/se3_transformer/model/layers/convolution.py
+index 3ef1693..21fbb65 100644
+--- a/include/SE3Transformer/se3_transformer/model/layers/convolution.py
++++ b/include/SE3Transformer/se3_transformer/model/layers/convolution.py
+@@ -31,7 +31,7 @@ import torch
+ import torch.nn as nn
+ from dgl import DGLGraph
+ from torch import Tensor
+-from torch.cuda.nvtx import range as nvtx_range
++from se3_transformer.runtime.nvtx import range as nvtx_range
+ 
+ from se3_transformer.model.fiber import Fiber
+ from se3_transformer.runtime.utils import degree_to_dim, unfuse_features
+diff --git a/include/SE3Transformer/se3_transformer/model/layers/norm.py b/include/SE3Transformer/se3_transformer/model/layers/norm.py
+index acbe23d..5dfe48c 100644
+--- a/include/SE3Transformer/se3_transformer/model/layers/norm.py
++++ b/include/SE3Transformer/se3_transformer/model/layers/norm.py
+@@ -27,7 +27,7 @@ from typing import Dict
+ import torch
+ import torch.nn as nn
+ from torch import Tensor
+-from torch.cuda.nvtx import range as nvtx_range
++from se3_transformer.runtime.nvtx import range as nvtx_range
+ 
+ from se3_transformer.model.fiber import Fiber
+ 
+diff --git a/include/SE3Transformer/se3_transformer/runtime/nvtx.py b/include/SE3Transformer/se3_transformer/runtime/nvtx.py
+new file mode 100644
+index 0000000..c722d54
+--- /dev/null
++++ b/include/SE3Transformer/se3_transformer/runtime/nvtx.py
+@@ -0,0 +1,29 @@
++"""
++Portable replacement for ``torch.cuda.nvtx.range``.
++
++NVTX is a CUDA-only profiling annotation; ``torch.cuda.nvtx`` raises on
++non-CUDA devices (e.g. Tecorigin SDAA). These helpers are no-ops on any device
++and are safe to use as context managers:
++
++    with nvtx_range('name'):
++        ...
++"""
++
++from contextlib import contextmanager
++
++
++@contextmanager
++def range(msg, *args, **kwargs):  # noqa: A001 - mirror the torch.cuda.nvtx name
++    yield
++
++
++def range_push(msg, *args, **kwargs):
++    pass
++
++
++def range_pop():
++    pass
++
++
++def mark(msg, *args, **kwargs):
++    pass
+\ No newline at end of file

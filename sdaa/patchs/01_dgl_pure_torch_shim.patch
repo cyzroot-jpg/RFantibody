@@ -1,0 +1,241 @@
+diff --git a/dgl/__init__.py b/dgl/__init__.py
+new file mode 100644
+index 0000000..052fd37
+--- /dev/null
++++ b/dgl/__init__.py
+@@ -0,0 +1,88 @@
++"""
++Pure-PyTorch drop-in replacement for the small subset of the Deep Graph Library
++(DGL) API that RFantibody depends on.
++
++This package exists so the project can run on devices/platforms where DGL has no
++build (e.g. Tecorigin SDAA on loongarch64). It implements only what the pipeline
++actually uses:
++
++    - ``dgl.graph((src, dst), num_nodes=N)``
++    - ``DGLGraph.edges()`` / ``DGLGraph.num_nodes()`` / ``DGLGraph.to(device)``
++    - ``DGLGraph.edata`` (plain dict-like storage)
++    - ``dgl.ops.{copy_e_sum, copy_e_mean, copy_e_max, e_dot_v, u_dot_v,
++      copy_u, copy_v, edge_softmax}``
++    - ``dgl.nn.pytorch.{AvgPooling, MaxPooling}``
++
++All operators are implemented with native PyTorch scatter/index ops and are
++autograd-compatible, so they work on CPU, CUDA and SDAA without modification.
++"""
++
++import torch
++
++from . import nn
++from . import ops
++
++
++class _EdgeData(dict):
++    """Minimal dict-like edge feature store matching the DGL ``edata`` surface."""
++
++    def to(self, device):
++        for key, value in self.items():
++            if torch.is_tensor(value):
++                self[key] = value.to(device)
++        return self
++
++
++class DGLGraph:
++    """A homogeneous directed graph holding COO edges and edge features."""
++
++    def __init__(self, src, dst, num_nodes):
++        self._src = src.to(torch.long)
++        self._dst = dst.to(torch.long)
++        self._num_nodes = int(num_nodes)
++        self.edata = _EdgeData()
++
++    def to(self, device):
++        self._src = self._src.to(device)
++        self._dst = self._dst.to(device)
++        self.edata.to(device)
++        return self
++
++    @property
++    def device(self):
++        return self._src.device
++
++    def edges(self):
++        """Return the (src, dst) endpoint tensors of every edge."""
++        return self._src, self._dst
++
++    def num_nodes(self):
++        return self._num_nodes
++
++    def number_of_nodes(self):
++        return self._num_nodes
++
++    def num_edges(self):
++        return self._src.shape[0]
++
++    def number_of_edges(self):
++        return self._src.shape[0]
++
++    def __repr__(self):
++        return (
++            f"DGLGraph(num_nodes={self._num_nodes}, "
++            f"num_edges={self.num_edges()}, device={self.device})"
++        )
++
++
++def graph(data, num_nodes=None):
++    """Create a :class:`DGLGraph` from a ``(src, dst)`` tuple."""
++    src, dst = data
++    src = src.to(torch.long)
++    dst = dst.to(torch.long)
++    if num_nodes is None:
++        num_nodes = int(torch.max(torch.stack([src.max(), dst.max()]))) + 1
++    return DGLGraph(src, dst, num_nodes)
++
++
++__all__ = ["DGLGraph", "graph", "ops", "nn"]
+\ No newline at end of file
+diff --git a/dgl/nn/__init__.py b/dgl/nn/__init__.py
+new file mode 100644
+index 0000000..d1c6c55
+--- /dev/null
++++ b/dgl/nn/__init__.py
+@@ -0,0 +1,5 @@
++"""Pure-PyTorch replacement of the ``dgl.nn`` namespace used by RFantibody."""
++
++from . import pytorch
++
++__all__ = ["pytorch"]
+\ No newline at end of file
+diff --git a/dgl/nn/pytorch.py b/dgl/nn/pytorch.py
+new file mode 100644
+index 0000000..954dada
+--- /dev/null
++++ b/dgl/nn/pytorch.py
+@@ -0,0 +1,25 @@
++"""
++Pure-PyTorch replacements for ``dgl.nn.pytorch`` graph pooling modules.
++
++RFantibody builds single, un-batched graphs, so pooling reduces over all nodes
++and returns a leading batch dimension of size 1 to match DGL's output shape.
++"""
++
++import torch
++import torch.nn as nn
++
++__all__ = ["AvgPooling", "MaxPooling"]
++
++
++class AvgPooling(nn.Module):
++    """Average all node features into a single ``(1, D)`` vector."""
++
++    def forward(self, graph, feat):
++        return feat.mean(dim=0, keepdim=True)
++
++
++class MaxPooling(nn.Module):
++    """Max-reduce all node features into a single ``(1, D)`` vector."""
++
++    def forward(self, graph, feat):
++        return feat.max(dim=0, keepdim=True).values
+\ No newline at end of file
+diff --git a/dgl/ops.py b/dgl/ops.py
+new file mode 100644
+index 0000000..2059643
+--- /dev/null
++++ b/dgl/ops.py
+@@ -0,0 +1,95 @@
++"""
++Pure-PyTorch implementations of the DGL message-passing operators used by the
++SE(3)-Transformer / RFantibody graph blocks.
++
++Semantics match ``dgl.ops`` (https://github.com/dmlc/dgl):
++
++    copy_e_*    : reduce edge features into *destination* nodes
++    e_dot_v     : per-edge dot product of an edge feature with the dst node feature
++    u_dot_v     : per-node dot product of two node features
++    copy_u/copy_v: broadcast a node feature onto edges (src / dst)
++    edge_softmax: softmax over a node's incoming (or outgoing) edges
++"""
++
++import torch
++
++__all__ = [
++    "copy_e_sum",
++    "copy_e_mean",
++    "copy_e_max",
++    "copy_e_min",
++    "e_dot_v",
++    "u_dot_v",
++    "copy_u",
++    "copy_v",
++    "edge_softmax",
++]
++
++
++def _feat_shape(x):
++    return (x.shape[0],) + tuple(x.shape[1:])
++
++
++def copy_e_sum(graph, x):
++    """Sum edge features into destination nodes: ``out[dst[e]] += x[e]``."""
++    out = x.new_zeros((graph.num_nodes(),) + tuple(x.shape[1:]))
++    return out.index_add(0, graph._dst, x)
++
++
++def copy_e_mean(graph, x):
++    """Average edge features per destination node."""
++    num_nodes = graph.num_nodes()
++    out = x.new_zeros((num_nodes,) + tuple(x.shape[1:]))
++    out = out.index_add(0, graph._dst, x)
++    ones = x.new_ones((x.shape[0],) + (1,) * (x.dim() - 1))
++    count = x.new_zeros((num_nodes,) + (1,) * (x.dim() - 1)).index_add(0, graph._dst, ones)
++    return out / count.clamp_min(1)
++
++
++def copy_e_max(graph, x):
++    """Max-reduce edge features per destination node."""
++    num_nodes = graph.num_nodes()
++    out = x.new_full((num_nodes,) + tuple(x.shape[1:]), torch.finfo(x.dtype).min)
++    return out.index_reduce(0, graph._dst, x, "amax", include_self=True)
++
++
++def copy_e_min(graph, x):
++    """Min-reduce edge features per destination node."""
++    num_nodes = graph.num_nodes()
++    out = x.new_full((num_nodes,) + tuple(x.shape[1:]), torch.finfo(x.dtype).max)
++    return out.index_reduce(0, graph._dst, x, "amin", include_self=True)
++
++
++def e_dot_v(graph, x, y):
++    """Per-edge dot product between edge feature ``x`` and dst node feature ``y``."""
++    return (x * y[graph._dst]).sum(dim=-1, keepdim=True)
++
++
++def u_dot_v(graph, x, y):
++    """Per-node dot product between node features ``x`` and ``y``."""
++    return (x * y).sum(dim=-1, keepdim=True)
++
++
++def copy_u(graph, x):
++    """Broadcast source node features onto edges: ``out[e] = x[src[e]]``."""
++    return x[graph._src]
++
++
++def copy_v(graph, x):
++    """Broadcast destination node features onto edges: ``out[e] = x[dst[e]]``."""
++    return x[graph._dst]
++
++
++def edge_softmax(graph, logits, eids=None, norm_by="dst"):
++    """Softmax over the incoming (``norm_by='dst'``) or outgoing edges per node."""
++    index = graph._dst if norm_by == "dst" else graph._src
++    num_nodes = graph.num_nodes()
++    tail = tuple(logits.shape[1:])
++
++    neg = torch.finfo(logits.dtype).min
++    value_max = logits.new_full((num_nodes,) + tail, neg)
++    value_max = value_max.index_reduce(0, index, logits.detach(), "amax", include_self=True)
++
++    shifted = torch.exp(logits - value_max[index])
++    value_sum = logits.new_zeros((num_nodes,) + tail).index_add(0, index, shifted)
++    return shifted / value_sum[index].clamp_min(torch.finfo(logits.dtype).tiny)
+\ No newline at end of file

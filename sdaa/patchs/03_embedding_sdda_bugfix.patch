@@ -1,0 +1,143 @@
+diff --git a/src/rfantibody/rf2/network/Embeddings.py b/src/rfantibody/rf2/network/Embeddings.py
+index 69d20c8..5916cb3 100644
+--- a/src/rfantibody/rf2/network/Embeddings.py
++++ b/src/rfantibody/rf2/network/Embeddings.py
+@@ -4,6 +4,7 @@ import torch.utils.checkpoint as checkpoint
+ 
+ from rfantibody.rf2.network.Attention_module import Attention
+ from rfantibody.rf2.network.Track_module import PairStr2Pair
++from rfantibody.util.torch_compat import SafeEmbedding
+ from rfantibody.rf2.network.util import get_Cb
+ from rfantibody.rf2.network.util_module import (
+     create_custom_forward,
+@@ -20,7 +21,7 @@ class PositionalEncoding2D(nn.Module):
+         self.minpos = minpos
+         self.maxpos = maxpos
+         self.nbin = abs(minpos)+maxpos+1
+-        self.emb = nn.Embedding(self.nbin, d_model)
++        self.emb = SafeEmbedding(self.nbin, d_model)
+         self.d_out = d_model
+     
+     def forward(self, idx, stride, nc_cycle=False):
+@@ -58,10 +59,10 @@ class MSA_emb(nn.Module):
+                  minpos=-32, maxpos=32, p_drop=0.1):
+         super(MSA_emb, self).__init__()
+         self.emb = nn.Linear(d_init, d_msa) # embedding for general MSA
+-        self.emb_q = nn.Embedding(22, d_msa) # embedding for query sequence -- used for MSA embedding
+-        self.emb_left = nn.Embedding(22, d_pair) # embedding for query sequence -- used for pair embedding
+-        self.emb_right = nn.Embedding(22, d_pair) # embedding for query sequence -- used for pair embedding
+-        self.emb_state = nn.Embedding(22, d_state)
++        self.emb_q = SafeEmbedding(22, d_msa) # embedding for query sequence -- used for MSA embedding
++        self.emb_left = SafeEmbedding(22, d_pair) # embedding for query sequence -- used for pair embedding
++        self.emb_right = SafeEmbedding(22, d_pair) # embedding for query sequence -- used for pair embedding
++        self.emb_state = SafeEmbedding(22, d_state)
+         self.pos = PositionalEncoding2D(d_pair, minpos=minpos, maxpos=maxpos)
+ 
+         self.d_init = d_init
+@@ -110,7 +111,7 @@ class Extra_emb(nn.Module):
+     def __init__(self, d_msa=256, d_init=22+1+2, p_drop=0.1):
+         super(Extra_emb, self).__init__()
+         self.emb = nn.Linear(d_init, d_msa) # embedding for general MSA
+-        self.emb_q = nn.Embedding(22, d_msa) # embedding for query sequence
++        self.emb_q = SafeEmbedding(22, d_msa) # embedding for query sequence
+ 
+         self.d_init = d_init
+         self.d_msa = d_msa
+diff --git a/src/rfantibody/rf2/network/Track_module.py b/src/rfantibody/rf2/network/Track_module.py
+index 7fe6134..fcb0928 100644
+--- a/src/rfantibody/rf2/network/Track_module.py
++++ b/src/rfantibody/rf2/network/Track_module.py
+@@ -8,6 +8,7 @@ from rfantibody.rf2.network.Attention_module import *
+ from rfantibody.rf2.network.kinematics import Qs2Rs, normQ
+ from rfantibody.rf2.network.SE3_network import SE3TransformerWrapper
+ from rfantibody.rf2.network.util_module import *
++from rfantibody.util.torch_compat import SafeEmbedding
+ 
+ # Components for three-track blocks
+ # 1. MSA -> MSA update (biased attention. bias from pair & structure)
+@@ -22,7 +23,7 @@ class SeqSep(nn.Module):
+         self.minpos = minpos
+         self.maxpos = maxpos
+         self.nbin = abs(minpos)+maxpos+1
+-        self.emb = nn.Embedding(self.nbin, d_model)
++        self.emb = SafeEmbedding(self.nbin, d_model)
+     
+     def forward(self, idx, idx2=None, oligo=1, L=0, nc_cycle=False):
+         if idx2 is None:
+diff --git a/src/rfantibody/rfdiffusion/Embeddings.py b/src/rfantibody/rfdiffusion/Embeddings.py
+index 124df8c..1ed5060 100644
+--- a/src/rfantibody/rfdiffusion/Embeddings.py
++++ b/src/rfantibody/rfdiffusion/Embeddings.py
+@@ -11,6 +11,7 @@ from rfantibody.rfdiffusion.Attention_module import (
+     FeedForwardLayer,
+ )
+ from rfantibody.rfdiffusion.Track_module import PairStr2Pair
++from rfantibody.util.torch_compat import SafeEmbedding
+ from rfantibody.rfdiffusion.util_module import (
+     create_custom_forward,
+     init_lecun_normal,
+@@ -102,7 +103,7 @@ class PositionalEncoding2D(nn.Module):
+         self.minpos = minpos
+         self.maxpos = maxpos
+         self.nbin = abs(minpos)+maxpos+1
+-        self.emb = nn.Embedding(self.nbin, d_model)
++        self.emb = SafeEmbedding(self.nbin, d_model)
+         self.drop = nn.Dropout(p_drop)
+ 
+     def forward(self, x, idx):
+@@ -120,10 +121,10 @@ class MSA_emb(nn.Module):
+                  minpos=-32, maxpos=32, p_drop=0.1, input_seq_onehot=False):
+         super(MSA_emb, self).__init__()
+         self.emb = nn.Linear(d_init, d_msa) # embedding for general MSA
+-        self.emb_q = nn.Embedding(22, d_msa) # embedding for query sequence -- used for MSA embedding
+-        self.emb_left = nn.Embedding(22, d_pair) # embedding for query sequence -- used for pair embedding
+-        self.emb_right = nn.Embedding(22, d_pair) # embedding for query sequence -- used for pair embedding
+-        self.emb_state = nn.Embedding(22, d_state)
++        self.emb_q = SafeEmbedding(22, d_msa) # embedding for query sequence -- used for MSA embedding
++        self.emb_left = SafeEmbedding(22, d_pair) # embedding for query sequence -- used for pair embedding
++        self.emb_right = SafeEmbedding(22, d_pair) # embedding for query sequence -- used for pair embedding
++        self.emb_state = SafeEmbedding(22, d_state)
+         self.drop = nn.Dropout(p_drop)
+         self.pos = PositionalEncoding2D(d_pair, minpos=minpos, maxpos=maxpos, p_drop=p_drop)
+         
+@@ -204,7 +205,7 @@ class Extra_emb(nn.Module):
+     def __init__(self, d_msa=256, d_init=22+1+2, p_drop=0.1, input_seq_onehot=False):
+         super(Extra_emb, self).__init__()
+         self.emb = nn.Linear(d_init, d_msa) # embedding for general MSA
+-        self.emb_q = nn.Embedding(22, d_msa) # embedding for query sequence
++        self.emb_q = SafeEmbedding(22, d_msa) # embedding for query sequence
+         self.drop = nn.Dropout(p_drop)
+ 
+         self.input_seq_onehot=input_seq_onehot
+diff --git a/src/rfantibody/util/torch_compat.py b/src/rfantibody/util/torch_compat.py
+new file mode 100644
+index 0000000..41d0109
+--- /dev/null
++++ b/src/rfantibody/util/torch_compat.py
+@@ -0,0 +1,25 @@
++"""
++PyTorch/SDAA compatibility shims.
++
++`torch 2.12.0 + torch_sdaa 3.3.0` returns *incorrect rows* for `nn.Embedding`
++lookups whose index tensor has >= 3 dimensions (1-D and 2-D lookups are
++correct). Both RF2 and RFdiffusion feed 3-D (and 4-D) index tensors to
++embeddings (sequence-separation, MSA, template embeddings), which corrupts the
++activations and destabilises the whole network on SDAA.
++
++`SafeEmbedding` keeps the exact same parameter layout (``weight``) as
++``nn.Embedding`` so existing checkpoints load unchanged, but performs the lookup
++on a flattened index and restores the shape — avoiding the broken kernel path on
++any device.
++"""
++
++import torch.nn as nn
++
++
++class SafeEmbedding(nn.Embedding):
++    """Drop-in ``nn.Embedding`` that works with N-D index tensors on SDAA."""
++
++    def forward(self, input):  # noqa: A002 - match nn.Embedding signature
++        original_shape = input.shape
++        out = super().forward(input.reshape(-1))
++        return out.reshape(*original_shape, self.embedding_dim)
+\ No newline at end of file
