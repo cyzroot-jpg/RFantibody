@@ -208,6 +208,20 @@ RFANTIBODY_DEVICE=sdaa python3 linshi/eval/run_pc_eval.py
 | RF2（结构预测/打分） | ✅ 可用（pLDDT 0.90 vs 参考 0.89） |
 | util / quiver 工具 | ✅ 可用（2/2、7/7） |
 
+### 6.5 各模型指标结果（SDAA vs CUDA）
+
+| 模型 | 数据集 | 指标 | 值（SDAA） | 值（CUDA） |
+|------|--------|------|-----------|-----------|
+| RFdiffusion | `rsv_site3.pdb` + `h-NbBCII10.pdb`（纳米抗体） | 逐原子最大偏差 | 0.0168 / 0.0476 Å | 0.0133 / 0.1168 Å |
+| RFdiffusion | `rsv_site3.pdb` + `hu-4D5-8_Fv.pdb`（抗体） | 逐原子最大偏差 | 2.75 / 10.76 Å | 0.0595 / 0.7987 Å |
+| ProteinMPNN | `ab_des_0.pdb` | 骨架坐标偏差 | 0.0000 Å | 0.0000 Å |
+| ProteinMPNN | `ab_des_0.pdb` | 序列一致率 | 97.28% / 94.98% | 100.00% / 100.00% |
+| RF2 | `ab_proteinmpnn_output.pdb` | pred_lddt | 0.90 | 0.90 |
+| RF2 | `ab_proteinmpnn_output.pdb` | pae | 10.67 | 10.54 |
+| RF2 | `ab_proteinmpnn_output.pdb` | interaction_pae | 19.47 | 19.21 |
+| RF2 | `ab_proteinmpnn_output.pdb` | framework_aligned_antibody_rmsd | 1.17 Å | 1.21 Å |
+| RF2 | `ab_proteinmpnn_output.pdb` | framework_aligned_cdr_rmsd | 2.10 Å | 2.15 Å |
+
 ## 七、踩坑记录
 
 | # | 坑 | 根因 | 解决 |
